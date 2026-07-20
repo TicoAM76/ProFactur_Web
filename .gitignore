@@ -1,0 +1,28 @@
+﻿# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+dist/
+build/
+.next/
+.wrangler/
+
+# Variables y secretos
+.env
+.env.*
+!.env.example
+
+# VS Code y sistema
+.vscode/
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
