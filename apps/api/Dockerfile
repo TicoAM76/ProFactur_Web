@@ -1,4 +1,3 @@
-@'
 FROM node:24-alpine AS build
 
 WORKDIR /app
@@ -34,4 +33,3 @@ USER node
 EXPOSE 3001
 
 CMD ["npm", "run", "start:prod", "--workspace=api"]
-'@ | Set-Content -Encoding utf8NoBOM .\apps\api\Dockerfile
