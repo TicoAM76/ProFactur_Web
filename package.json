@@ -1,0 +1,26 @@
+{
+  "name": "profactur",
+  "version": "0.1.0",
+  "description": "Plataforma web de facturacion y gestion para pequenos negocios",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TicoAM76/ProFactur_Web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TicoAM76/ProFactur_Web/issues"
+  },
+  "homepage": "https://github.com/TicoAM76/ProFactur_Web#readme",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": "24.x",
+    "npm": "11.x"
+  }
+}
