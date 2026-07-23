@@ -8,23 +8,57 @@ datasource db {
   provider = "postgresql"
 }
 
+enum CustomerType {
+  PERSON
+  COMPANY
+}
+
 model Company {
-  id           String   @id @default(uuid()) @db.Uuid
+  id           String     @id @default(uuid()) @db.Uuid
   legalName    String
   tradeName    String?
-  taxId        String   @unique
+  taxId        String     @unique
   addressLine1 String
   addressLine2 String?
   postalCode   String
   city         String
   province     String
-  countryCode  String   @default("ES") @db.Char(2)
+  countryCode  String     @default("ES") @db.Char(2)
   phone        String?
   email        String?
   website      String?
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  customers    Customer[]
 
   @@map("companies")
+}
+
+model Customer {
+  id           String       @id @default(uuid()) @db.Uuid
+  companyId    String       @db.Uuid
+  type         CustomerType @default(PERSON)
+  legalName    String
+  tradeName    String?
+  taxId        String?
+  addressLine1 String?
+  addressLine2 String?
+  postalCode   String?
+  city         String?
+  province     String?
+  countryCode  String       @default("ES") @db.Char(2)
+  phone        String?
+  email        String?
+  notes        String?
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@unique([companyId, taxId])
+  @@index([companyId])
+  @@index([companyId, legalName])
+  @@map("customers")
 }
