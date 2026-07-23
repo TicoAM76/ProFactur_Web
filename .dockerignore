@@ -1,0 +1,24 @@
+@'
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+
+node_modules
+**/node_modules
+
+.next
+**/.next
+
+dist
+**/dist
+
+coverage
+**/coverage
+
+*.log
+.vscode
+.DS_Store
+Thumbs.db
+'@ | Set-Content -Encoding utf8NoBOM .dockerignore
