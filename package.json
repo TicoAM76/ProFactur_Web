@@ -22,5 +22,9 @@
   "engines": {
     "node": "24.x",
     "npm": "11.x"
+  },
+  "allowScripts": {
+    "prisma@7.9.0": true,
+    "@prisma/engines@7.9.0": true
   }
 }

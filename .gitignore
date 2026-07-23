@@ -26,3 +26,9 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Archivos auxiliares de asistentes generados por herramientas
+**/.agents/
+**/.claude/
+**/.windsurf/
+**/skills-lock.json
