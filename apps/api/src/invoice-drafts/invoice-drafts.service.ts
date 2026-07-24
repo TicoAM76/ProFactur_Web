@@ -20,6 +20,7 @@ export class InvoiceDraftsService {
 
   private normalizeOptional(value?: string): string | null {
     const normalized = value?.trim();
+
     return normalized ? normalized : null;
   }
 
@@ -242,6 +243,7 @@ export class InvoiceDraftsService {
     }
 
     const quantity = new Prisma.Decimal(data.quantity);
+
     const discountRate = new Prisma.Decimal(data.discountRate ?? '0.00');
 
     const calculated = calculateInvoiceLine({
@@ -442,6 +444,57 @@ export class InvoiceDraftsService {
       });
 
       await this.recalculateDraftTotals(transaction, draftId);
+    });
+
+    return this.findOne(companyId, draftId);
+  }
+
+  async markReady(companyId: string, draftId: string) {
+    await this.prisma.$transaction(async (transaction) => {
+      const draft = await transaction.invoiceDraft.findFirst({
+        where: {
+          id: draftId,
+          companyId,
+        },
+        select: {
+          id: true,
+          status: true,
+        },
+      });
+
+      if (!draft) {
+        throw new NotFoundException('El borrador de factura no existe.');
+      }
+
+      if (draft.status !== InvoiceDraftStatus.DRAFT) {
+        throw new BadRequestException(
+          'El borrador ya no se encuentra en estado DRAFT.',
+        );
+      }
+
+      const lineCount = await transaction.invoiceDraftLine.count({
+        where: {
+          invoiceDraftId: draftId,
+        },
+      });
+
+      if (lineCount === 0) {
+        throw new BadRequestException(
+          'No se puede preparar una factura sin líneas.',
+        );
+      }
+
+      await this.recalculateDraftTotals(transaction, draftId);
+
+      await transaction.invoiceDraft.update({
+        where: {
+          id: draftId,
+        },
+        data: {
+          status: InvoiceDraftStatus.READY,
+          readyAt: new Date(),
+        },
+      });
     });
 
     return this.findOne(companyId, draftId);

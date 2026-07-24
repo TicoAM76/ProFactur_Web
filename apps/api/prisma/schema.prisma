@@ -137,6 +137,7 @@ model InvoiceDraft {
   customerId   String             @db.Uuid
   vehicleId    String?            @db.Uuid
   status       InvoiceDraftStatus @default(DRAFT)
+  readyAt      DateTime?
   currencyCode String             @default("EUR") @db.Char(3)
   notes        String?
   subtotal     Decimal            @default(0.00) @db.Decimal(14, 2)
