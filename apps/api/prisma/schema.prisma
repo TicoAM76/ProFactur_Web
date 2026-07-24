@@ -14,23 +14,25 @@ enum CustomerType {
 }
 
 model Company {
-  id           String     @id @default(uuid()) @db.Uuid
+  id           String   @id @default(uuid()) @db.Uuid
   legalName    String
   tradeName    String?
-  taxId        String     @unique
+  taxId        String   @unique
   addressLine1 String
   addressLine2 String?
   postalCode   String
   city         String
   province     String
-  countryCode  String     @default("ES") @db.Char(2)
+  countryCode  String   @default("ES") @db.Char(2)
   phone        String?
   email        String?
   website      String?
-  isActive     Boolean    @default(true)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  customers    Customer[]
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  customers Customer[]
+  vehicles  Vehicle[]
 
   @@map("companies")
 }
@@ -55,10 +57,36 @@ model Customer {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  company Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  company  Company   @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  vehicles Vehicle[]
 
   @@unique([companyId, taxId])
   @@index([companyId])
   @@index([companyId, legalName])
   @@map("customers")
+}
+
+model Vehicle {
+  id                 String   @id @default(uuid()) @db.Uuid
+  companyId          String   @db.Uuid
+  customerId         String   @db.Uuid
+  registrationNumber String
+  brand              String
+  model              String
+  version            String?
+  vin                String?
+  currentMileage     Int?
+  notes              String?
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  company  Company  @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+
+  @@unique([companyId, registrationNumber])
+  @@unique([companyId, vin])
+  @@index([companyId])
+  @@index([customerId])
+  @@map("vehicles")
 }
