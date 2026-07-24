@@ -6,6 +6,7 @@ import { CompaniesModule } from './companies/companies.module';
 import { CustomersModule } from './customers/customers.module';
 import { VehiclesModule } from './vehicles/vehicles.module';
 import { CatalogItemsModule } from './catalog-items/catalog-items.module';
+import { InvoiceDraftsModule } from './invoice-drafts/invoice-drafts.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { CatalogItemsModule } from './catalog-items/catalog-items.module';
     CustomersModule,
     VehiclesModule,
     CatalogItemsModule,
+    InvoiceDraftsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,0 +1,54 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
+import { AddInvoiceDraftLineDto } from './dto/add-invoice-draft-line.dto';
+import { CreateInvoiceDraftDto } from './dto/create-invoice-draft.dto';
+import { InvoiceDraftsService } from './invoice-drafts.service';
+
+@Controller('companies/:companyId/invoice-drafts')
+export class InvoiceDraftsController {
+  constructor(private readonly invoiceDraftsService: InvoiceDraftsService) {}
+
+  @Post()
+  create(
+    @Param('companyId', new ParseUUIDPipe({ version: '4' }))
+    companyId: string,
+    @Body() data: CreateInvoiceDraftDto,
+  ) {
+    return this.invoiceDraftsService.create(companyId, data);
+  }
+
+  @Get()
+  findAll(
+    @Param('companyId', new ParseUUIDPipe({ version: '4' }))
+    companyId: string,
+  ) {
+    return this.invoiceDraftsService.findAll(companyId);
+  }
+
+  @Get(':draftId')
+  findOne(
+    @Param('companyId', new ParseUUIDPipe({ version: '4' }))
+    companyId: string,
+    @Param('draftId', new ParseUUIDPipe({ version: '4' }))
+    draftId: string,
+  ) {
+    return this.invoiceDraftsService.findOne(companyId, draftId);
+  }
+
+  @Post(':draftId/lines')
+  addLine(
+    @Param('companyId', new ParseUUIDPipe({ version: '4' }))
+    companyId: string,
+    @Param('draftId', new ParseUUIDPipe({ version: '4' }))
+    draftId: string,
+    @Body() data: AddInvoiceDraftLineDto,
+  ) {
+    return this.invoiceDraftsService.addLine(companyId, draftId, data);
+  }
+}
