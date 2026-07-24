@@ -84,4 +84,14 @@ export class InvoiceDraftsController {
   ) {
     return this.invoiceDraftsService.deleteLine(companyId, draftId, lineId);
   }
+
+  @Post(':draftId/ready')
+  markReady(
+    @Param('companyId', new ParseUUIDPipe({ version: '4' }))
+    companyId: string,
+    @Param('draftId', new ParseUUIDPipe({ version: '4' }))
+    draftId: string,
+  ) {
+    return this.invoiceDraftsService.markReady(companyId, draftId);
+  }
 }
