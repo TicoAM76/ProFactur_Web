@@ -11,6 +11,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { AddInvoiceDraftLineDto } from './dto/add-invoice-draft-line.dto';
 import { CreateInvoiceDraftDto } from './dto/create-invoice-draft.dto';
+import { UpdateInvoiceDraftLineDto } from './dto/update-invoice-draft-line.dto';
 import { calculateInvoiceLine } from './invoice-line-calculator';
 
 @Injectable()
@@ -63,6 +64,59 @@ export class InvoiceDraftsService {
         'El vehículo no existe o no pertenece al cliente indicado.',
       );
     }
+  }
+
+  private async ensureEditableDraft(
+    companyId: string,
+    draftId: string,
+  ): Promise<void> {
+    const draft = await this.prisma.invoiceDraft.findFirst({
+      where: {
+        id: draftId,
+        companyId,
+      },
+      select: {
+        id: true,
+        status: true,
+      },
+    });
+
+    if (!draft) {
+      throw new NotFoundException('El borrador de factura no existe.');
+    }
+
+    if (draft.status !== InvoiceDraftStatus.DRAFT) {
+      throw new BadRequestException(
+        'Solo se pueden modificar borradores en estado DRAFT.',
+      );
+    }
+  }
+
+  private async recalculateDraftTotals(
+    transaction: Prisma.TransactionClient,
+    draftId: string,
+  ): Promise<void> {
+    const totals = await transaction.invoiceDraftLine.aggregate({
+      where: {
+        invoiceDraftId: draftId,
+      },
+      _sum: {
+        netAmount: true,
+        taxAmount: true,
+        totalAmount: true,
+      },
+    });
+
+    await transaction.invoiceDraft.update({
+      where: {
+        id: draftId,
+      },
+      data: {
+        subtotal: totals._sum.netAmount ?? new Prisma.Decimal(0),
+        taxAmount: totals._sum.taxAmount ?? new Prisma.Decimal(0),
+        totalAmount: totals._sum.totalAmount ?? new Prisma.Decimal(0),
+      },
+    });
   }
 
   async create(companyId: string, data: CreateInvoiceDraftDto) {
@@ -137,26 +191,7 @@ export class InvoiceDraftsService {
     draftId: string,
     data: AddInvoiceDraftLineDto,
   ) {
-    const draft = await this.prisma.invoiceDraft.findFirst({
-      where: {
-        id: draftId,
-        companyId,
-      },
-      select: {
-        id: true,
-        status: true,
-      },
-    });
-
-    if (!draft) {
-      throw new NotFoundException('El borrador de factura no existe.');
-    }
-
-    if (draft.status !== InvoiceDraftStatus.DRAFT) {
-      throw new BadRequestException(
-        'Solo se pueden modificar borradores en estado DRAFT.',
-      );
-    }
+    await this.ensureEditableDraft(companyId, draftId);
 
     const catalogItem = data.catalogItemId
       ? await this.prisma.catalogItem.findFirst({
@@ -182,13 +217,13 @@ export class InvoiceDraftsService {
     const unit =
       catalogItem?.unit ?? this.normalizeOptional(data.unit)?.toUpperCase();
 
-    const unitPriceValue =
+    const unitPrice =
       catalogItem?.unitPrice ??
       (data.unitPrice !== undefined
         ? new Prisma.Decimal(data.unitPrice)
         : undefined);
 
-    const taxRateValue =
+    const taxRate =
       catalogItem?.taxRate ??
       (data.taxRate !== undefined
         ? new Prisma.Decimal(data.taxRate)
@@ -198,8 +233,8 @@ export class InvoiceDraftsService {
       !type ||
       !description ||
       !unit ||
-      unitPriceValue === undefined ||
-      taxRateValue === undefined
+      unitPrice === undefined ||
+      taxRate === undefined
     ) {
       throw new BadRequestException(
         'Una línea manual requiere tipo, descripción, unidad, precio e IVA.',
@@ -211,26 +246,26 @@ export class InvoiceDraftsService {
 
     const calculated = calculateInvoiceLine({
       quantity,
-      unitPrice: unitPriceValue,
+      unitPrice,
       discountRate,
-      taxRate: taxRateValue,
+      taxRate,
     });
-
-    const lastLine = await this.prisma.invoiceDraftLine.findFirst({
-      where: {
-        invoiceDraftId: draftId,
-      },
-      select: {
-        position: true,
-      },
-      orderBy: {
-        position: 'desc',
-      },
-    });
-
-    const position = (lastLine?.position ?? 0) + 1;
 
     await this.prisma.$transaction(async (transaction) => {
+      const lastLine = await transaction.invoiceDraftLine.findFirst({
+        where: {
+          invoiceDraftId: draftId,
+        },
+        select: {
+          position: true,
+        },
+        orderBy: {
+          position: 'desc',
+        },
+      });
+
+      const position = (lastLine?.position ?? 0) + 1;
+
       await transaction.invoiceDraftLine.create({
         data: {
           invoiceDraftId: draftId,
@@ -243,36 +278,170 @@ export class InvoiceDraftsService {
           description,
           quantity,
           unit,
-          unitPrice: unitPriceValue,
+          unitPrice,
           discountRate,
-          taxRate: taxRateValue,
+          taxRate,
           netAmount: calculated.netAmount,
           taxAmount: calculated.taxAmount,
           totalAmount: calculated.totalAmount,
         },
       });
 
-      const totals = await transaction.invoiceDraftLine.aggregate({
+      await this.recalculateDraftTotals(transaction, draftId);
+    });
+
+    return this.findOne(companyId, draftId);
+  }
+
+  async updateLine(
+    companyId: string,
+    draftId: string,
+    lineId: string,
+    data: UpdateInvoiceDraftLineDto,
+  ) {
+    await this.ensureEditableDraft(companyId, draftId);
+
+    const line = await this.prisma.invoiceDraftLine.findFirst({
+      where: {
+        id: lineId,
+        invoiceDraftId: draftId,
+      },
+    });
+
+    if (!line) {
+      throw new NotFoundException('La línea del borrador no existe.');
+    }
+
+    const catalogItem = data.catalogItemId
+      ? await this.prisma.catalogItem.findFirst({
+          where: {
+            id: data.catalogItemId,
+            companyId,
+            isActive: true,
+          },
+        })
+      : null;
+
+    if (data.catalogItemId && !catalogItem) {
+      throw new NotFoundException(
+        'El concepto del catálogo no existe o está inactivo.',
+      );
+    }
+
+    const type = catalogItem?.type ?? data.type ?? line.type;
+
+    const description =
+      catalogItem?.name ??
+      this.normalizeOptional(data.description) ??
+      line.description;
+
+    const unit =
+      catalogItem?.unit ??
+      this.normalizeOptional(data.unit)?.toUpperCase() ??
+      line.unit;
+
+    const unitPrice =
+      catalogItem?.unitPrice ??
+      (data.unitPrice !== undefined
+        ? new Prisma.Decimal(data.unitPrice)
+        : line.unitPrice);
+
+    const taxRate =
+      catalogItem?.taxRate ??
+      (data.taxRate !== undefined
+        ? new Prisma.Decimal(data.taxRate)
+        : line.taxRate);
+
+    const quantity =
+      data.quantity !== undefined
+        ? new Prisma.Decimal(data.quantity)
+        : line.quantity;
+
+    const discountRate =
+      data.discountRate !== undefined
+        ? new Prisma.Decimal(data.discountRate)
+        : line.discountRate;
+
+    const calculated = calculateInvoiceLine({
+      quantity,
+      unitPrice,
+      discountRate,
+      taxRate,
+    });
+
+    const code =
+      catalogItem?.code ??
+      (data.code !== undefined
+        ? (this.normalizeOptional(data.code)?.toUpperCase() ?? null)
+        : line.code);
+
+    await this.prisma.$transaction(async (transaction) => {
+      await transaction.invoiceDraftLine.update({
         where: {
-          invoiceDraftId: draftId,
+          id: lineId,
         },
-        _sum: {
-          netAmount: true,
-          taxAmount: true,
-          totalAmount: true,
+        data: {
+          catalogItemId: catalogItem?.id ?? line.catalogItemId,
+          type,
+          code,
+          description,
+          quantity,
+          unit,
+          unitPrice,
+          discountRate,
+          taxRate,
+          netAmount: calculated.netAmount,
+          taxAmount: calculated.taxAmount,
+          totalAmount: calculated.totalAmount,
         },
       });
 
-      await transaction.invoiceDraft.update({
+      await this.recalculateDraftTotals(transaction, draftId);
+    });
+
+    return this.findOne(companyId, draftId);
+  }
+
+  async deleteLine(companyId: string, draftId: string, lineId: string) {
+    await this.ensureEditableDraft(companyId, draftId);
+
+    const line = await this.prisma.invoiceDraftLine.findFirst({
+      where: {
+        id: lineId,
+        invoiceDraftId: draftId,
+      },
+      select: {
+        id: true,
+        position: true,
+      },
+    });
+
+    if (!line) {
+      throw new NotFoundException('La línea del borrador no existe.');
+    }
+
+    await this.prisma.$transaction(async (transaction) => {
+      await transaction.invoiceDraftLine.delete({
         where: {
-          id: draftId,
-        },
-        data: {
-          subtotal: totals._sum.netAmount ?? new Prisma.Decimal(0),
-          taxAmount: totals._sum.taxAmount ?? new Prisma.Decimal(0),
-          totalAmount: totals._sum.totalAmount ?? new Prisma.Decimal(0),
+          id: lineId,
         },
       });
+
+      await transaction.invoiceDraftLine.updateMany({
+        where: {
+          invoiceDraftId: draftId,
+          position: {
+            gt: line.position,
+          },
+        },
+        data: {
+          position: {
+            decrement: 1,
+          },
+        },
+      });
+
+      await this.recalculateDraftTotals(transaction, draftId);
     });
 
     return this.findOne(companyId, draftId);

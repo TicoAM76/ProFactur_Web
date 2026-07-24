@@ -1,13 +1,16 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { AddInvoiceDraftLineDto } from './dto/add-invoice-draft-line.dto';
 import { CreateInvoiceDraftDto } from './dto/create-invoice-draft.dto';
+import { UpdateInvoiceDraftLineDto } from './dto/update-invoice-draft-line.dto';
 import { InvoiceDraftsService } from './invoice-drafts.service';
 
 @Controller('companies/:companyId/invoice-drafts')
@@ -50,5 +53,35 @@ export class InvoiceDraftsController {
     @Body() data: AddInvoiceDraftLineDto,
   ) {
     return this.invoiceDraftsService.addLine(companyId, draftId, data);
+  }
+
+  @Patch(':draftId/lines/:lineId')
+  updateLine(
+    @Param('companyId', new ParseUUIDPipe({ version: '4' }))
+    companyId: string,
+    @Param('draftId', new ParseUUIDPipe({ version: '4' }))
+    draftId: string,
+    @Param('lineId', new ParseUUIDPipe({ version: '4' }))
+    lineId: string,
+    @Body() data: UpdateInvoiceDraftLineDto,
+  ) {
+    return this.invoiceDraftsService.updateLine(
+      companyId,
+      draftId,
+      lineId,
+      data,
+    );
+  }
+
+  @Delete(':draftId/lines/:lineId')
+  deleteLine(
+    @Param('companyId', new ParseUUIDPipe({ version: '4' }))
+    companyId: string,
+    @Param('draftId', new ParseUUIDPipe({ version: '4' }))
+    draftId: string,
+    @Param('lineId', new ParseUUIDPipe({ version: '4' }))
+    lineId: string,
+  ) {
+    return this.invoiceDraftsService.deleteLine(companyId, draftId, lineId);
   }
 }
