@@ -1,4 +1,4 @@
-import { Transform } from 'class-transformer';
+import { Transform, type TransformFnParams } from 'class-transformer';
 import {
   IsBoolean,
   IsDecimal,
@@ -9,6 +9,24 @@ import {
   MaxLength,
 } from 'class-validator';
 import { CatalogItemType } from '../../generated/prisma/client';
+
+function normalizeDecimalInput({ value }: TransformFnParams): unknown {
+  const rawValue: unknown = value;
+
+  if (rawValue === null || rawValue === undefined) {
+    return rawValue;
+  }
+
+  if (typeof rawValue === 'string') {
+    return rawValue.trim().replace(',', '.');
+  }
+
+  if (typeof rawValue === 'number') {
+    return String(rawValue);
+  }
+
+  return rawValue;
+}
 
 export class CreateCatalogItemDto {
   @IsEnum(CatalogItemType)
@@ -34,9 +52,7 @@ export class CreateCatalogItemDto {
   @MaxLength(20)
   unit?: string;
 
-  @Transform(({ value }) =>
-    value == null ? value : String(value).trim().replace(',', '.'),
-  )
+  @Transform(normalizeDecimalInput)
   @IsDecimal({
     decimal_digits: '0,2',
     force_decimal: false,
@@ -44,9 +60,7 @@ export class CreateCatalogItemDto {
   unitPrice!: string;
 
   @IsOptional()
-  @Transform(({ value }) =>
-    value == null ? value : String(value).trim().replace(',', '.'),
-  )
+  @Transform(normalizeDecimalInput)
   @IsDecimal({
     decimal_digits: '0,2',
     force_decimal: false,
