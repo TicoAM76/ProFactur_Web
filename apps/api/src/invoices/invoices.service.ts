@@ -5,6 +5,7 @@ import {
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
+import { FiscalRecordsService } from '../fiscal/fiscal-records.service';
 import { InvoiceDraftStatus, Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { IssueInvoiceDto } from './dto/issue-invoice.dto';
@@ -12,7 +13,10 @@ import { formatInvoiceNumber } from './invoice-number';
 
 @Injectable()
 export class InvoicesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly fiscalRecordsService: FiscalRecordsService,
+  ) {}
 
   private getSeriesYear(date: Date): number {
     const year = new Intl.DateTimeFormat('en', {
@@ -217,6 +221,19 @@ export class InvoicesService {
           },
         });
 
+        const fiscalRecord = await this.fiscalRecordsService.createAltaRecord(
+          transaction,
+          {
+            invoiceId: invoice.id,
+            companyId: invoice.companyId,
+            issuerTaxId: invoice.sellerTaxId,
+            invoiceNumber: invoice.fullNumber,
+            issuedAt: invoice.issuedAt,
+            totalTaxAmount: invoice.taxAmount,
+            totalAmount: invoice.totalAmount,
+          },
+        );
+
         await transaction.invoiceDraft.update({
           where: {
             id: draft.id,
@@ -227,7 +244,10 @@ export class InvoicesService {
           },
         });
 
-        return invoice;
+        return {
+          ...invoice,
+          fiscalRecord,
+        };
       },
       {
         isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
