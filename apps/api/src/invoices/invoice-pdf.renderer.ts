@@ -56,7 +56,7 @@ const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
 const MARGIN = 42;
 const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
-const FOOTER_Y = PAGE_HEIGHT - 31;
+const FOOTER_Y = PAGE_HEIGHT - MARGIN - 12;
 
 const colors = {
   primary: '#1F2937',
