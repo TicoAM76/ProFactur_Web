@@ -61,6 +61,15 @@ enum FiscalInvoiceType {
   R5
 }
 
+enum FiscalSubmissionState {
+  CREATED
+  SENDING
+  RESPONSE_RECEIVED
+  COMPLETED
+  TRANSPORT_ERROR
+  SOAP_FAULT
+}
+
 model Company {
   id           String   @id @default(uuid()) @db.Uuid
   legalName    String
@@ -79,14 +88,15 @@ model Company {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  customers     Customer[]
-  vehicles      Vehicle[]
-  catalogItems  CatalogItem[]
-  invoiceDrafts InvoiceDraft[]
-  invoiceSeries InvoiceSeries[]
-  invoices      Invoice[]
-  fiscalChains  FiscalChain[]
-  fiscalRecords FiscalRecord[]
+  customers         Customer[]
+  vehicles          Vehicle[]
+  catalogItems      CatalogItem[]
+  invoiceDrafts     InvoiceDraft[]
+  invoiceSeries     InvoiceSeries[]
+  invoices          Invoice[]
+  fiscalChains      FiscalChain[]
+  fiscalRecords     FiscalRecord[]
+  fiscalSubmissions FiscalSubmission[]
 
   @@map("companies")
 }
@@ -351,8 +361,9 @@ model FiscalChain {
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
 
-  company Company        @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  records FiscalRecord[]
+  company     Company            @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  records     FiscalRecord[]
+  submissions FiscalSubmission[]
 
   @@unique([companyId, environment, installationNumber])
   @@index([companyId, environment, isActive])
@@ -408,10 +419,92 @@ model FiscalRecord {
 
   nextRecord FiscalRecord? @relation("FiscalRecordSequence")
 
+  submissionItems FiscalSubmissionItem[]
+
   @@unique([chainId, sequence])
   @@unique([chainId, hash])
   @@index([companyId, state])
   @@index([invoiceId, kind])
   @@index([chainId, createdAt])
   @@map("fiscal_records")
+}
+
+model FiscalSubmission {
+  id                 String                @id @default(uuid()) @db.Uuid
+  companyId          String                @db.Uuid
+  chainId            String                @db.Uuid
+  environment        FiscalEnvironment
+  installationNumber String                @db.VarChar(100)
+  state              FiscalSubmissionState @default(CREATED)
+
+  endpoint    String @db.VarChar(500)
+  requestXml  String
+  requestHash String @db.Char(64)
+
+  responseXml String?
+  httpStatus  Int?
+
+  globalStatus String? @db.VarChar(50)
+  aeatCsv      String? @db.VarChar(100)
+
+  presenterTaxId  String?   @db.VarChar(20)
+  presentationAt  DateTime?
+  presentationRaw String?   @db.VarChar(35)
+  waitSeconds     Int?
+
+  soapFaultCode    String? @db.VarChar(100)
+  soapFaultMessage String?
+  transportError   String?
+
+  certificateFingerprint String? @db.VarChar(128)
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  durationMs  Int?
+  nextRetryAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company Company                @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  chain   FiscalChain            @relation(fields: [chainId], references: [id], onDelete: Restrict)
+  items   FiscalSubmissionItem[]
+
+  @@index([companyId, state])
+  @@index([chainId, createdAt])
+  @@index([state, nextRetryAt])
+  @@map("fiscal_submissions")
+}
+
+model FiscalSubmissionItem {
+  id             String @id @default(uuid()) @db.Uuid
+  submissionId   String @db.Uuid
+  fiscalRecordId String @db.Uuid
+
+  position      Int
+  attemptNumber Int
+  operation     FiscalRecordKind
+
+  resultState FiscalRecordState?
+
+  aeatStatusCode       String? @db.VarChar(50)
+  aeatErrorCode        String? @db.VarChar(50)
+  aeatErrorDescription String?
+
+  duplicateState         String? @db.VarChar(50)
+  duplicateIssuerTaxId   String? @db.VarChar(20)
+  duplicateInvoiceNumber String? @db.VarChar(60)
+  duplicateInvoiceDate   String? @db.Char(10)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  submission   FiscalSubmission @relation(fields: [submissionId], references: [id], onDelete: Restrict)
+  fiscalRecord FiscalRecord     @relation(fields: [fiscalRecordId], references: [id], onDelete: Restrict)
+
+  @@unique([submissionId, position])
+  @@unique([submissionId, fiscalRecordId])
+  @@unique([fiscalRecordId, attemptNumber])
+  @@index([fiscalRecordId, createdAt])
+  @@map("fiscal_submission_items")
 }
