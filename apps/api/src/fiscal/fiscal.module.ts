@@ -1,8 +1,13 @@
 import { Module } from '@nestjs/common';
+import { PrismaModule } from '../prisma/prisma.module';
+import { FiscalController } from './fiscal.controller';
 import { FiscalRecordsService } from './fiscal-records.service';
+import { FiscalXmlService } from './fiscal-xml.service';
 
 @Module({
-  providers: [FiscalRecordsService],
+  imports: [PrismaModule],
+  controllers: [FiscalController],
+  providers: [FiscalRecordsService, FiscalXmlService],
   exports: [FiscalRecordsService],
 })
 export class FiscalModule {}
