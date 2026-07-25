@@ -81,6 +81,8 @@ export class InvoicePdfService {
         unit: line.unit,
         unitPrice: line.unitPrice.toString(),
         taxRate: line.taxRate.toString(),
+        netAmount: line.netAmount.toString(),
+        taxAmount: line.taxAmount.toString(),
         totalAmount: line.totalAmount.toString(),
       })),
 

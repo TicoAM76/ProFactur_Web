@@ -1,4 +1,8 @@
 import PDFDocument from 'pdfkit';
+import {
+  buildTaxBreakdown,
+  InvoiceTaxBreakdownRow,
+} from './invoice-tax-breakdown';
 
 export interface InvoicePdfLine {
   position: number;
@@ -8,6 +12,8 @@ export interface InvoicePdfLine {
   unit: string;
   unitPrice: string;
   taxRate: string;
+  netAmount: string;
+  taxAmount: string;
   totalAmount: string;
 }
 
@@ -200,9 +206,7 @@ function drawDocumentHeader(
       fallback(invoice.sellerTradeName ?? invoice.sellerLegalName),
       MARGIN,
       top,
-      {
-        width: 310,
-      },
+      { width: 310 },
     );
 
   doc
@@ -345,46 +349,13 @@ interface TableColumn {
 }
 
 const columns: TableColumn[] = [
-  {
-    title: '#',
-    x: MARGIN,
-    width: 24,
-    align: 'center',
-  },
-  {
-    title: 'Código',
-    x: MARGIN + 24,
-    width: 68,
-  },
-  {
-    title: 'Descripción',
-    x: MARGIN + 92,
-    width: 184,
-  },
-  {
-    title: 'Cant.',
-    x: MARGIN + 276,
-    width: 46,
-    align: 'right',
-  },
-  {
-    title: 'Precio',
-    x: MARGIN + 322,
-    width: 67,
-    align: 'right',
-  },
-  {
-    title: 'IVA',
-    x: MARGIN + 389,
-    width: 49,
-    align: 'right',
-  },
-  {
-    title: 'Total',
-    x: MARGIN + 438,
-    width: 73,
-    align: 'right',
-  },
+  { title: '#', x: MARGIN, width: 24, align: 'center' },
+  { title: 'Código', x: MARGIN + 24, width: 68 },
+  { title: 'Descripción', x: MARGIN + 92, width: 184 },
+  { title: 'Cant.', x: MARGIN + 276, width: 46, align: 'right' },
+  { title: 'Precio', x: MARGIN + 322, width: 67, align: 'right' },
+  { title: 'IVA', x: MARGIN + 389, width: 49, align: 'right' },
+  { title: 'Total', x: MARGIN + 438, width: 73, align: 'right' },
 ];
 
 function drawTableHeader(doc: PDFKit.PDFDocument, y: number): number {
@@ -473,6 +444,127 @@ function drawContinuationHeader(
   return drawTableHeader(doc, MARGIN + 38);
 }
 
+function getTaxBreakdownHeight(rows: InvoiceTaxBreakdownRow[]): number {
+  const titleHeight = 23;
+  const headerHeight = 20;
+  const rowHeight = 20;
+  const totalHeight = 23;
+
+  return titleHeight + headerHeight + rows.length * rowHeight + totalHeight;
+}
+
+function drawTaxBreakdown(
+  doc: PDFKit.PDFDocument,
+  invoice: InvoicePdfDocumentData,
+  rows: InvoiceTaxBreakdownRow[],
+  y: number,
+): number {
+  const x = MARGIN;
+  const width = 285;
+  const titleHeight = 23;
+  const headerHeight = 20;
+  const rowHeight = 20;
+  const height = getTaxBreakdownHeight(rows);
+
+  doc
+    .roundedRect(x, y, width, height, 4)
+    .strokeColor(colors.border)
+    .lineWidth(0.8)
+    .stroke();
+
+  doc.rect(x, y, width, titleHeight).fill(colors.primary);
+
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(8)
+    .fillColor(colors.white)
+    .text('DESGLOSE DE IVA', x + 10, y + 8, {
+      width: width - 20,
+    });
+
+  const headerY = y + titleHeight;
+
+  doc.rect(x, headerY, width, headerHeight).fill(colors.light);
+
+  const rateX = x + 8;
+  const baseX = x + 65;
+  const taxX = x + 177;
+
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(8)
+    .fillColor(colors.secondary)
+    .text('Tipo', rateX, headerY + 6, { width: 48 })
+    .text('Base imponible', baseX, headerY + 6, {
+      width: 100,
+      align: 'right',
+    })
+    .text('Cuota IVA', taxX, headerY + 6, {
+      width: 100,
+      align: 'right',
+    });
+
+  let rowY = headerY + headerHeight;
+
+  for (const row of rows) {
+    doc
+      .moveTo(x, rowY)
+      .lineTo(x + width, rowY)
+      .strokeColor(colors.border)
+      .lineWidth(0.5)
+      .stroke();
+
+    doc
+      .font('Helvetica')
+      .fontSize(8)
+      .fillColor(colors.primary)
+      .text(formatTaxRate(row.taxRate), rateX, rowY + 6, {
+        width: 48,
+      })
+      .text(
+        formatInvoiceAmount(row.netAmount, invoice.currencyCode),
+        baseX,
+        rowY + 6,
+        { width: 100, align: 'right' },
+      )
+      .text(
+        formatInvoiceAmount(row.taxAmount, invoice.currencyCode),
+        taxX,
+        rowY + 6,
+        { width: 100, align: 'right' },
+      );
+
+    rowY += rowHeight;
+  }
+
+  doc
+    .moveTo(x, rowY)
+    .lineTo(x + width, rowY)
+    .strokeColor(colors.border)
+    .lineWidth(0.8)
+    .stroke();
+
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(8)
+    .fillColor(colors.primary)
+    .text('TOTAL', rateX, rowY + 7, { width: 48 })
+    .text(
+      formatInvoiceAmount(invoice.subtotal, invoice.currencyCode),
+      baseX,
+      rowY + 7,
+      { width: 100, align: 'right' },
+    )
+    .text(
+      formatInvoiceAmount(invoice.taxAmount, invoice.currencyCode),
+      taxX,
+      rowY + 7,
+      { width: 100, align: 'right' },
+    );
+
+  return y + height;
+}
+
 function drawTotals(
   doc: PDFKit.PDFDocument,
   invoice: InvoicePdfDocumentData,
@@ -515,9 +607,7 @@ function drawTotals(
       .font(isTotal ? 'Helvetica-Bold' : 'Helvetica')
       .fontSize(isTotal ? 10 : 9)
       .fillColor(colors.primary)
-      .text(label, x + 10, rowY + 7, {
-        width: 100,
-      })
+      .text(label, x + 10, rowY + 7, { width: 100 })
       .text(value, x + 108, rowY + 7, {
         width: boxWidth - 118,
         align: 'right',
@@ -639,12 +729,20 @@ export function renderInvoicePdf(
 
     y += 18;
 
-    if (y + 90 > PAGE_HEIGHT - 55) {
+    const taxBreakdown = buildTaxBreakdown(invoice.lines);
+    const taxBreakdownHeight = getTaxBreakdownHeight(taxBreakdown);
+    const totalsHeight = 69;
+    const fiscalSectionHeight = Math.max(taxBreakdownHeight, totalsHeight);
+
+    if (y + fiscalSectionHeight > PAGE_HEIGHT - MARGIN - 32) {
       doc.addPage();
       y = MARGIN;
     }
 
-    y = drawTotals(doc, invoice, y);
+    drawTaxBreakdown(doc, invoice, taxBreakdown, y);
+    drawTotals(doc, invoice, y);
+
+    y += fiscalSectionHeight;
 
     if (invoice.notes?.trim()) {
       const notesHeight = doc.heightOfString(invoice.notes, {
@@ -652,7 +750,7 @@ export function renderInvoicePdf(
         lineGap: 2,
       });
 
-      if (y + notesHeight + 45 > PAGE_HEIGHT - 55) {
+      if (y + notesHeight + 45 > PAGE_HEIGHT - MARGIN - 32) {
         doc.addPage();
         y = MARGIN;
       } else {
