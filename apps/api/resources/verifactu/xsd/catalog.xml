@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog
+  xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+
+  <system
+    systemId="http://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd"
+    uri="xmldsig-core-schema.xsd"/>
+
+  <system
+    systemId="https://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd"
+    uri="xmldsig-core-schema.xsd"/>
+
+</catalog>
