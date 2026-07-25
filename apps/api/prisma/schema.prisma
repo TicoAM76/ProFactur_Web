@@ -31,6 +31,36 @@ enum InvoiceStatus {
   CANCELLED
 }
 
+enum FiscalEnvironment {
+  TEST
+  PRODUCTION
+}
+
+enum FiscalRecordKind {
+  ALTA
+  ANULACION
+}
+
+enum FiscalRecordState {
+  GENERATED
+  PENDING_SUBMISSION
+  SUBMITTED
+  ACCEPTED
+  ACCEPTED_WITH_ERRORS
+  REJECTED
+}
+
+enum FiscalInvoiceType {
+  F1
+  F2
+  F3
+  R1
+  R2
+  R3
+  R4
+  R5
+}
+
 model Company {
   id           String   @id @default(uuid()) @db.Uuid
   legalName    String
@@ -55,6 +85,8 @@ model Company {
   invoiceDrafts InvoiceDraft[]
   invoiceSeries InvoiceSeries[]
   invoices      Invoice[]
+  fiscalChains  FiscalChain[]
+  fiscalRecords FiscalRecord[]
 
   @@map("companies")
 }
@@ -267,12 +299,13 @@ model Invoice {
 
   createdAt DateTime @default(now())
 
-  company     Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  series      InvoiceSeries @relation(fields: [seriesId], references: [id], onDelete: Restrict)
-  sourceDraft InvoiceDraft  @relation(fields: [sourceDraftId], references: [id], onDelete: Restrict)
-  customer    Customer      @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  vehicle     Vehicle?      @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
-  lines       InvoiceLine[]
+  company       Company        @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  series        InvoiceSeries  @relation(fields: [seriesId], references: [id], onDelete: Restrict)
+  sourceDraft   InvoiceDraft   @relation(fields: [sourceDraftId], references: [id], onDelete: Restrict)
+  customer      Customer       @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  vehicle       Vehicle?       @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  lines         InvoiceLine[]
+  fiscalRecords FiscalRecord[]
 
   @@unique([seriesId, number])
   @@unique([companyId, fullNumber])
@@ -306,4 +339,79 @@ model InvoiceLine {
   @@unique([invoiceId, position])
   @@index([catalogItemId])
   @@map("invoice_lines")
+}
+
+model FiscalChain {
+  id                 String            @id @default(uuid()) @db.Uuid
+  companyId          String            @db.Uuid
+  environment        FiscalEnvironment
+  installationNumber String            @default("1") @db.VarChar(50)
+  nextSequence       Int               @default(1)
+  isActive           Boolean           @default(true)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  company Company        @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  records FiscalRecord[]
+
+  @@unique([companyId, environment, installationNumber])
+  @@index([companyId, environment, isActive])
+  @@map("fiscal_chains")
+}
+
+model FiscalRecord {
+  id          String            @id @default(uuid()) @db.Uuid
+  chainId     String            @db.Uuid
+  companyId   String            @db.Uuid
+  invoiceId   String            @db.Uuid
+  sequence    Int
+  kind        FiscalRecordKind
+  state       FiscalRecordState @default(GENERATED)
+  invoiceType FiscalInvoiceType
+
+  issuerTaxId   String @db.VarChar(20)
+  invoiceNumber String @db.VarChar(60)
+  invoiceDate   String @db.Char(10)
+
+  totalTaxAmount Decimal @db.Decimal(14, 2)
+  totalAmount    Decimal @db.Decimal(14, 2)
+
+  previousRecordId      String? @unique @db.Uuid
+  previousInvoiceNumber String? @db.VarChar(60)
+  previousInvoiceDate   String? @db.Char(10)
+  previousHash          String? @db.Char(64)
+
+  hashInput String
+  hash      String @db.Char(64)
+
+  generatedAt           DateTime
+  generatedAtWithOffset String   @db.VarChar(35)
+
+  qrUrl String?
+
+  aeatCsv              String? @db.VarChar(100)
+  aeatStatusCode       String? @db.VarChar(50)
+  aeatErrorCode        String? @db.VarChar(50)
+  aeatErrorDescription String?
+
+  submittedAt DateTime?
+  acceptedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chain   FiscalChain @relation(fields: [chainId], references: [id], onDelete: Restrict)
+  company Company     @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  invoice Invoice     @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+
+  previousRecord FiscalRecord? @relation("FiscalRecordSequence", fields: [previousRecordId], references: [id], onDelete: Restrict)
+
+  nextRecord FiscalRecord? @relation("FiscalRecordSequence")
+
+  @@unique([chainId, sequence])
+  @@unique([chainId, hash])
+  @@index([companyId, state])
+  @@index([invoiceId, kind])
+  @@index([chainId, createdAt])
+  @@map("fiscal_records")
 }
