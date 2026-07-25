@@ -24,6 +24,20 @@ function requireValue(environment: EnvironmentSource, name: string): string {
   return value;
 }
 
+function ensureMaximumLength(
+  value: string,
+  maximumLength: number,
+  variableName: string,
+): string {
+  if (value.length > maximumLength) {
+    throw new Error(
+      `${variableName} no puede superar ${maximumLength} caracteres.`,
+    );
+  }
+
+  return value;
+}
+
 function normalizeSpanishTaxId(value: string): string {
   const normalized = value.trim().toUpperCase();
 
@@ -46,20 +60,6 @@ function normalizeYesNo(value: string, variableName: string): VerifactuYesNo {
   return normalized;
 }
 
-function ensureMaximumLength(
-  value: string,
-  maximumLength: number,
-  variableName: string,
-): string {
-  if (value.length > maximumLength) {
-    throw new Error(
-      `${variableName} no puede superar ${maximumLength} caracteres.`,
-    );
-  }
-
-  return value;
-}
-
 export function loadVerifactuSifConfig(
   environment: EnvironmentSource = process.env,
 ): VerifactuSifConfig {
@@ -75,13 +75,13 @@ export function loadVerifactuSifConfig(
 
   const systemName = ensureMaximumLength(
     requireValue(environment, 'VERIFACTU_SIF_NAME'),
-    100,
+    30,
     'VERIFACTU_SIF_NAME',
   );
 
   const systemId = ensureMaximumLength(
     requireValue(environment, 'VERIFACTU_SIF_ID'),
-    30,
+    2,
     'VERIFACTU_SIF_ID',
   );
 
@@ -93,7 +93,7 @@ export function loadVerifactuSifConfig(
 
   const installationNumber = ensureMaximumLength(
     requireValue(environment, 'VERIFACTU_INSTALLATION_NUMBER'),
-    50,
+    100,
     'VERIFACTU_INSTALLATION_NUMBER',
   );
 

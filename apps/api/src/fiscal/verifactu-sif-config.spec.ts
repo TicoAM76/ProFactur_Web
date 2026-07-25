@@ -5,7 +5,7 @@ describe('loadVerifactuSifConfig', () => {
     VERIFACTU_SIF_PRODUCER_NAME: 'Profactur Desarrollo',
     VERIFACTU_SIF_PRODUCER_TAX_ID: 'B12345678',
     VERIFACTU_SIF_NAME: 'Profactur',
-    VERIFACTU_SIF_ID: 'PROFACTUR',
+    VERIFACTU_SIF_ID: 'PF',
     VERIFACTU_SIF_VERSION: '0.1.0',
     VERIFACTU_INSTALLATION_NUMBER: '1',
     VERIFACTU_SIF_ONLY_VERIFACTU: 'S',
@@ -18,7 +18,7 @@ describe('loadVerifactuSifConfig', () => {
       producerName: 'Profactur Desarrollo',
       producerTaxId: 'B12345678',
       systemName: 'Profactur',
-      systemId: 'PROFACTUR',
+      systemId: 'PF',
       version: '0.1.0',
       installationNumber: '1',
       onlyVerifactu: 'S',
@@ -35,6 +35,7 @@ describe('loadVerifactuSifConfig', () => {
     });
 
     expect(result.producerTaxId).toBe('B12345678');
+
     expect(result.onlyVerifactu).toBe('S');
   });
 
@@ -68,5 +69,14 @@ describe('loadVerifactuSifConfig', () => {
     ).toThrow(
       'VERIFACTU_SIF_PRODUCER_TAX_ID debe contener 9 caracteres alfanumericos.',
     );
+  });
+
+  it('rechaza un identificador de sistema de más de dos caracteres', () => {
+    expect(() =>
+      loadVerifactuSifConfig({
+        ...validEnvironment,
+        VERIFACTU_SIF_ID: 'PROFACTUR',
+      }),
+    ).toThrow('VERIFACTU_SIF_ID no puede superar 2 caracteres.');
   });
 });
