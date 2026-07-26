@@ -27,6 +27,9 @@ describe('invoice PDF renderer', () => {
       sellerCity: 'Valencia',
       sellerProvince: 'Valencia',
       sellerCountryCode: 'ES',
+      sellerPhone: '645642445',
+      sellerEmail: 'taller@profactur.test',
+      sellerWebsite: 'www.profactur.test',
 
       customerLegalName: 'Rafael Alberto Felipe Feliu',
       customerTradeName: null,
@@ -37,6 +40,8 @@ describe('invoice PDF renderer', () => {
       customerCity: 'Benidorm',
       customerProvince: 'Alicante',
       customerCountryCode: 'ES',
+      customerPhone: '655954711',
+      customerEmail: 'rafael@profactur.test',
 
       vehicleRegistrationNumber: '4187LRS',
       vehicleBrand: 'Renault',

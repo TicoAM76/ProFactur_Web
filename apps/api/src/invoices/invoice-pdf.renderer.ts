@@ -32,6 +32,9 @@ export interface InvoicePdfDocumentData {
   sellerCity: string;
   sellerProvince: string;
   sellerCountryCode: string;
+  sellerPhone: string | null;
+  sellerEmail: string | null;
+  sellerWebsite: string | null;
 
   customerLegalName: string;
   customerTradeName: string | null;
@@ -42,6 +45,8 @@ export interface InvoicePdfDocumentData {
   customerCity: string | null;
   customerProvince: string | null;
   customerCountryCode: string;
+  customerPhone: string | null;
+  customerEmail: string | null;
 
   vehicleRegistrationNumber: string | null;
   vehicleBrand: string | null;
@@ -159,6 +164,28 @@ function joinAddress(
   return lines.length > 0 ? lines : ['-'];
 }
 
+function buildContactLines(
+  phone: string | null,
+  email: string | null,
+  website?: string | null,
+): string[] {
+  const lines: string[] = [];
+
+  if (phone?.trim()) {
+    lines.push(`Tel.: ${phone.trim()}`);
+  }
+
+  if (email?.trim()) {
+    lines.push(`Email: ${email.trim()}`);
+  }
+
+  if (website?.trim()) {
+    lines.push(`Web: ${website.trim()}`);
+  }
+
+  return lines;
+}
+
 function drawInfoBox(
   doc: PDFKit.PDFDocument,
   title: string,
@@ -263,7 +290,7 @@ function drawParties(
 ): number {
   const gap = 12;
   const boxWidth = (CONTENT_WIDTH - gap) / 2;
-  const boxHeight = 105;
+  const boxHeight = 130;
 
   const sellerAddress = joinAddress(
     invoice.sellerAddressLine1,
@@ -281,10 +308,26 @@ function drawParties(
     invoice.customerProvince,
   );
 
+  const sellerContacts = buildContactLines(
+    invoice.sellerPhone,
+    invoice.sellerEmail,
+    invoice.sellerWebsite,
+  );
+
+  const customerContacts = buildContactLines(
+    invoice.customerPhone,
+    invoice.customerEmail,
+  );
+
   drawInfoBox(
     doc,
     'Emisor',
-    [invoice.sellerLegalName, `NIF: ${invoice.sellerTaxId}`, ...sellerAddress],
+    [
+      invoice.sellerLegalName,
+      `NIF: ${invoice.sellerTaxId}`,
+      ...sellerAddress,
+      ...sellerContacts,
+    ],
     MARGIN,
     y,
     boxWidth,
@@ -298,6 +341,7 @@ function drawParties(
       invoice.customerLegalName,
       `NIF: ${fallback(invoice.customerTaxId)}`,
       ...customerAddress,
+      ...customerContacts,
     ],
     MARGIN + boxWidth + gap,
     y,

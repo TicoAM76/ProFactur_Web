@@ -285,6 +285,9 @@ model Invoice {
   sellerCity         String  @db.VarChar(100)
   sellerProvince     String  @db.VarChar(100)
   sellerCountryCode  String  @db.Char(2)
+  sellerPhone        String? @db.VarChar(30)
+  sellerEmail        String? @db.VarChar(254)
+  sellerWebsite      String? @db.VarChar(255)
 
   customerLegalName    String  @db.VarChar(200)
   customerTradeName    String? @db.VarChar(200)
@@ -295,6 +298,8 @@ model Invoice {
   customerCity         String? @db.VarChar(100)
   customerProvince     String? @db.VarChar(100)
   customerCountryCode  String  @db.Char(2)
+  customerPhone        String? @db.VarChar(30)
+  customerEmail        String? @db.VarChar(254)
 
   vehicleRegistrationNumber String? @db.VarChar(20)
   vehicleBrand              String? @db.VarChar(100)

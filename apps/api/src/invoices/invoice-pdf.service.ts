@@ -51,6 +51,9 @@ export class InvoicePdfService {
       sellerCity: invoice.sellerCity,
       sellerProvince: invoice.sellerProvince,
       sellerCountryCode: invoice.sellerCountryCode,
+      sellerPhone: invoice.sellerPhone,
+      sellerEmail: invoice.sellerEmail,
+      sellerWebsite: invoice.sellerWebsite,
 
       customerLegalName: invoice.customerLegalName,
       customerTradeName: invoice.customerTradeName,
@@ -61,6 +64,8 @@ export class InvoicePdfService {
       customerCity: invoice.customerCity,
       customerProvince: invoice.customerProvince,
       customerCountryCode: invoice.customerCountryCode,
+      customerPhone: invoice.customerPhone,
+      customerEmail: invoice.customerEmail,
 
       vehicleRegistrationNumber: invoice.vehicleRegistrationNumber,
       vehicleBrand: invoice.vehicleBrand,

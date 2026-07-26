@@ -169,6 +169,9 @@ export class InvoicesService {
             sellerCity: draft.company.city,
             sellerProvince: draft.company.province,
             sellerCountryCode: draft.company.countryCode,
+            sellerPhone: draft.company.phone,
+            sellerEmail: draft.company.email,
+            sellerWebsite: draft.company.website,
 
             customerLegalName: draft.customer.legalName,
             customerTradeName: draft.customer.tradeName,
@@ -179,6 +182,8 @@ export class InvoicesService {
             customerCity: draft.customer.city,
             customerProvince: draft.customer.province,
             customerCountryCode: draft.customer.countryCode,
+            customerPhone: draft.customer.phone,
+            customerEmail: draft.customer.email,
 
             vehicleRegistrationNumber: draft.vehicle?.registrationNumber,
             vehicleBrand: draft.vehicle?.brand,
