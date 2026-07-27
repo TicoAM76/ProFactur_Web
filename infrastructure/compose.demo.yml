@@ -96,6 +96,41 @@ services:
       retries: 5
       start_period: 25s
 
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    container_name: profactur-demo-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      PROFACTUR_API_INTERNAL_URL: http://api:3001
+      PROFACTUR_DEMO_COMPANY_TAX_ID: B00000000
+    ports:
+      - "127.0.0.1:3200:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - profactur_demo_network
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - >
+          fetch('http://127.0.0.1:3000')
+          .then(response => {
+            if (!response.ok) process.exit(1);
+          })
+          .catch(() => process.exit(1));
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+
 networks:
   profactur_demo_network:
     name: profactur-demo-network
