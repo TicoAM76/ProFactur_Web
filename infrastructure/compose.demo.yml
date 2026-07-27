@@ -1,0 +1,109 @@
+name: profactur-demo
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: profactur-demo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - profactur_demo_postgres_data:/var/lib/postgresql/data
+    networks:
+      - profactur_demo_network
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    container_name: profactur-demo-redis
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+    volumes:
+      - profactur_demo_redis_data:/data
+    networks:
+      - profactur_demo_network
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    container_name: profactur-demo-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+
+      PROFACTUR_MODE: DEMO
+      DEMO_DOCUMENTS_ENABLED: "true"
+      OFFICIAL_QR_ENABLED: "false"
+      PROFACTUR_DEMO_VERIFY_BASE_URL: ${PROFACTUR_DEMO_VERIFY_BASE_URL}
+
+      VERIFACTU_ENVIRONMENT: TEST
+      VERIFACTU_INSTALLATION_NUMBER: ${VERIFACTU_INSTALLATION_NUMBER:-DEMO-1}
+      VERIFACTU_SIF_PRODUCER_NAME: ${VERIFACTU_SIF_PRODUCER_NAME}
+      VERIFACTU_SIF_PRODUCER_TAX_ID: ${VERIFACTU_SIF_PRODUCER_TAX_ID}
+      VERIFACTU_SIF_NAME: ${VERIFACTU_SIF_NAME}
+      VERIFACTU_SIF_ID: ${VERIFACTU_SIF_ID}
+      VERIFACTU_SIF_VERSION: ${VERIFACTU_SIF_VERSION}
+      VERIFACTU_SIF_ONLY_VERIFACTU: ${VERIFACTU_SIF_ONLY_VERIFACTU}
+      VERIFACTU_SIF_SUPPORTS_MULTIPLE_TAXPAYERS: ${VERIFACTU_SIF_SUPPORTS_MULTIPLE_TAXPAYERS}
+      VERIFACTU_SIF_CURRENT_MULTIPLE_TAXPAYERS: ${VERIFACTU_SIF_CURRENT_MULTIPLE_TAXPAYERS}
+    ports:
+      - "127.0.0.1:3201:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - profactur_demo_network
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - >
+          fetch('http://127.0.0.1:3001/health')
+          .then(response => {
+            if (!response.ok) process.exit(1);
+          })
+          .catch(() => process.exit(1));
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+
+networks:
+  profactur_demo_network:
+    name: profactur-demo-network
+    driver: bridge
+
+volumes:
+  profactur_demo_postgres_data:
+    name: profactur-demo-postgres-data
+
+  profactur_demo_redis_data:
+    name: profactur-demo-redis-data
