@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Header,
   Param,
   ParseUUIDPipe,
   Post,
@@ -8,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { DemoDocumentPdfService } from './demo-document-pdf.service';
 import { DemoDocumentsService } from './demo-documents.service';
+import { renderDemoVerificationPage } from './demo-verification-page';
 
 @Controller('companies/:companyId')
 export class DemoDocumentsController {
@@ -100,8 +102,18 @@ export class DemoDocumentsController {
 export class DemoVerificationController {
   constructor(private readonly demoDocumentsService: DemoDocumentsService) {}
 
-  @Get('verify/:qrToken')
-  verify(@Param('qrToken') qrToken: string) {
+  @Get('verify/:qrToken/data')
+  verifyData(@Param('qrToken') qrToken: string) {
     return this.demoDocumentsService.verifyByToken(qrToken);
+  }
+
+  @Get('verify/:qrToken')
+  @Header('Content-Type', 'text/html; charset=utf-8')
+  @Header('Cache-Control', 'no-store, max-age=0')
+  @Header('X-Robots-Tag', 'noindex, nofollow, noarchive')
+  async verifyPage(@Param('qrToken') qrToken: string): Promise<string> {
+    const verification = await this.demoDocumentsService.verifyByToken(qrToken);
+
+    return renderDemoVerificationPage(verification);
   }
 }
