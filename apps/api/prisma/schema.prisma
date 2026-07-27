@@ -88,15 +88,17 @@ model Company {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  customers         Customer[]
-  vehicles          Vehicle[]
-  catalogItems      CatalogItem[]
-  invoiceDrafts     InvoiceDraft[]
-  invoiceSeries     InvoiceSeries[]
-  invoices          Invoice[]
-  fiscalChains      FiscalChain[]
-  fiscalRecords     FiscalRecord[]
-  fiscalSubmissions FiscalSubmission[]
+  customers          Customer[]
+  vehicles           Vehicle[]
+  catalogItems       CatalogItem[]
+  invoiceDrafts      InvoiceDraft[]
+  invoiceSeries      InvoiceSeries[]
+  invoices           Invoice[]
+  fiscalChains       FiscalChain[]
+  fiscalRecords      FiscalRecord[]
+  fiscalSubmissions  FiscalSubmission[]
+  demoDocumentSeries DemoDocumentSeries[]
+  demoDocuments      DemoDocument[]
 
   @@map("companies")
 }
@@ -201,11 +203,12 @@ model InvoiceDraft {
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
 
-  company  Company            @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  customer Customer           @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  vehicle  Vehicle?           @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
-  lines    InvoiceDraftLine[]
-  invoice  Invoice?
+  company      Company            @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  customer     Customer           @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  vehicle      Vehicle?           @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  lines        InvoiceDraftLine[]
+  invoice      Invoice?
+  demoDocument DemoDocument?
 
   @@index([companyId, status])
   @@index([customerId])
@@ -354,6 +357,61 @@ model InvoiceLine {
   @@unique([invoiceId, position])
   @@index([catalogItemId])
   @@map("invoice_lines")
+}
+
+model DemoDocumentSeries {
+  id         String   @id @default(uuid()) @db.Uuid
+  companyId  String   @db.Uuid
+  code       String   @default("DEMO") @db.VarChar(20)
+  year       Int
+  nextNumber Int      @default(1)
+  padding    Int      @default(6)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  company   Company        @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  documents DemoDocument[]
+
+  @@unique([companyId, code, year])
+  @@index([companyId])
+  @@map("demo_document_series")
+}
+
+model DemoDocument {
+  id            String @id @default(uuid()) @db.Uuid
+  companyId     String @db.Uuid
+  seriesId      String @db.Uuid
+  sourceDraftId String @unique @db.Uuid
+
+  number     Int
+  fullNumber String   @db.VarChar(50)
+  issuedAt   DateTime @default(now())
+
+  currencyCode String @default("EUR") @db.Char(3)
+  snapshot     Json
+
+  qrToken String @unique @db.VarChar(64)
+  qrUrl   String @db.VarChar(500)
+
+  fiscalHashInput       String
+  fiscalHash            String @db.Char(64)
+  generatedAtWithOffset String @db.VarChar(35)
+
+  xmlPreview String
+  xmlHash    String  @db.Char(64)
+  pdfHash    String? @db.Char(64)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company     Company            @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  series      DemoDocumentSeries @relation(fields: [seriesId], references: [id], onDelete: Restrict)
+  sourceDraft InvoiceDraft       @relation(fields: [sourceDraftId], references: [id], onDelete: Restrict)
+
+  @@unique([seriesId, number])
+  @@unique([companyId, fullNumber])
+  @@index([companyId, issuedAt])
+  @@map("demo_documents")
 }
 
 model FiscalChain {

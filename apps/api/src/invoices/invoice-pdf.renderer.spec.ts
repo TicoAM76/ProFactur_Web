@@ -90,4 +90,89 @@ describe('invoice PDF renderer', () => {
 
     expect(pdf.length).toBeGreaterThan(1000);
   });
+
+  it('genera un PDF DEMO con QR y pie de preparación fiscal', async () => {
+    const invoice: InvoicePdfDocumentData = {
+      documentTitle: 'FACTURA DEMO',
+      documentSubtitle: 'SIMULACIÓN SIN VALIDEZ FISCAL',
+      watermark: 'DEMO',
+      fullNumber: 'DEMO-2026-000001',
+      issuedAt: new Date('2026-07-26T12:00:00.000Z'),
+      currencyCode: 'EUR',
+      notes: 'Reparación y pintura de parachoques',
+
+      sellerLegalName: 'EMPRESA DEMO - SIN VALIDEZ FISCAL',
+      sellerTradeName: 'Taller Martín Brothers Paint & Body Shop',
+      sellerTaxId: 'B00000000',
+      sellerAddressLine1: 'Dirección de demostración',
+      sellerAddressLine2: null,
+      sellerPostalCode: '46000',
+      sellerCity: 'Valencia',
+      sellerProvince: 'Valencia',
+      sellerCountryCode: 'ES',
+      sellerPhone: null,
+      sellerEmail: 'demo@profactur.local',
+      sellerWebsite: null,
+
+      customerLegalName: 'Cliente Demostración',
+      customerTradeName: null,
+      customerTaxId: '00000000T',
+      customerAddressLine1: null,
+      customerAddressLine2: null,
+      customerPostalCode: null,
+      customerCity: null,
+      customerProvince: null,
+      customerCountryCode: 'ES',
+      customerPhone: null,
+      customerEmail: null,
+
+      vehicleRegistrationNumber: '1234-DEM',
+      vehicleBrand: 'Toyota',
+      vehicleModel: 'Corolla',
+      vehicleVersion: null,
+      vehicleVin: 'DEMO0000000000001',
+      vehicleMileage: 125000,
+
+      subtotal: '300',
+      taxAmount: '63',
+      totalAmount: '363',
+
+      lines: [
+        {
+          position: 1,
+          code: 'PINT-001',
+          description: 'Reparación y pintura de parachoques',
+          quantity: '1',
+          unit: 'UD',
+          unitPrice: '300',
+          taxRate: '21',
+          netAmount: '300',
+          taxAmount: '63',
+          totalAmount: '363',
+        },
+      ],
+
+      footerNotice: 'DOCUMENTO DEMO — SIN VALIDEZ FISCAL',
+      demoFooter: {
+        qrImage: Buffer.from(
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+          'base64',
+        ),
+        qrLabel: 'QR DEMO — NO AEAT',
+        verificationUrl: 'https://demo.profactur.es/demo/verify/example',
+        readinessLines: [
+          'Estructura validada contra el XSD oficial.',
+          'Registro y XML preparados para prueba de integración.',
+          'Pendiente de certificado válido y envío real en TEST.',
+        ],
+        disclaimer:
+          'Documento de demostración sin validez fiscal. No remitido a la Agencia Tributaria.',
+      },
+    };
+
+    const pdf = await renderInvoicePdf(invoice);
+
+    expect(pdf.subarray(0, 5).toString('ascii')).toBe('%PDF-');
+    expect(pdf.length).toBeGreaterThan(1000);
+  });
 });

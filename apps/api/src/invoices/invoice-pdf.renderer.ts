@@ -17,7 +17,19 @@ export interface InvoicePdfLine {
   totalAmount: string;
 }
 
+export interface InvoicePdfDemoFooter {
+  qrImage: Buffer;
+  qrLabel: string;
+  verificationUrl: string;
+  readinessLines: string[];
+  disclaimer: string;
+}
+
 export interface InvoicePdfDocumentData {
+  documentTitle?: string;
+  documentSubtitle?: string | null;
+  watermark?: string | null;
+
   fullNumber: string;
   issuedAt: Date;
   currencyCode: string;
@@ -61,6 +73,7 @@ export interface InvoicePdfDocumentData {
 
   lines: InvoicePdfLine[];
   footerNotice?: string | null;
+  demoFooter?: InvoicePdfDemoFooter | null;
 }
 
 const PAGE_WIDTH = 595.28;
@@ -68,6 +81,8 @@ const PAGE_HEIGHT = 841.89;
 const MARGIN = 42;
 const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
 const FOOTER_Y = PAGE_HEIGHT - MARGIN - 12;
+const DEMO_BLOCK_HEIGHT = 118;
+const DEMO_BLOCK_Y = PAGE_HEIGHT - MARGIN - 145;
 
 const colors = {
   primary: '#1F2937',
@@ -251,15 +266,27 @@ function drawDocumentHeader(
     .font('Helvetica-Bold')
     .fontSize(24)
     .fillColor(colors.primary)
-    .text('FACTURA', 360, top, {
-      width: CONTENT_WIDTH - 318,
+    .text(invoice.documentTitle ?? 'FACTURA', 330, top, {
+      width: CONTENT_WIDTH - 288,
       align: 'right',
     });
+
+  if (invoice.documentSubtitle?.trim()) {
+    doc
+      .font('Helvetica')
+      .fontSize(7)
+      .fillColor(colors.secondary)
+      .text(invoice.documentSubtitle, 330, top + 25, {
+        width: CONTENT_WIDTH - 288,
+        align: 'right',
+      });
+  }
 
   doc
     .font('Helvetica-Bold')
     .fontSize(12)
-    .text(invoice.fullNumber, 330, top + 31, {
+    .fillColor(colors.primary)
+    .text(invoice.fullNumber, 330, top + 39, {
       width: CONTENT_WIDTH - 288,
       align: 'right',
     });
@@ -268,7 +295,7 @@ function drawDocumentHeader(
     .font('Helvetica')
     .fontSize(9)
     .fillColor(colors.secondary)
-    .text(`Fecha: ${formatInvoiceDate(invoice.issuedAt)}`, 330, top + 49, {
+    .text(`Fecha: ${formatInvoiceDate(invoice.issuedAt)}`, 330, top + 56, {
       width: CONTENT_WIDTH - 288,
       align: 'right',
     });
@@ -477,7 +504,11 @@ function drawContinuationHeader(
     .font('Helvetica-Bold')
     .fontSize(13)
     .fillColor(colors.primary)
-    .text(`Factura ${invoice.fullNumber}`, MARGIN, MARGIN);
+    .text(
+      `${invoice.documentTitle ?? 'Factura'} ${invoice.fullNumber}`,
+      MARGIN,
+      MARGIN,
+    );
 
   doc
     .font('Helvetica')
@@ -687,6 +718,62 @@ function drawNotes(doc: PDFKit.PDFDocument, notes: string, y: number): number {
   );
 }
 
+function drawDemoVerificationBlock(
+  doc: PDFKit.PDFDocument,
+  footer: InvoicePdfDemoFooter,
+): void {
+  const x = MARGIN;
+  const y = DEMO_BLOCK_Y;
+  const qrSize = 72;
+  const textX = x + 96;
+  const textWidth = CONTENT_WIDTH - 106;
+
+  doc
+    .roundedRect(x, y, CONTENT_WIDTH, DEMO_BLOCK_HEIGHT, 4)
+    .fillAndStroke(colors.light, colors.border);
+
+  doc.image(footer.qrImage, x + 10, y + 10, {
+    width: qrSize,
+    height: qrSize,
+  });
+
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(8)
+    .fillColor(colors.primary)
+    .text(footer.qrLabel, x + 6, y + 86, {
+      width: 80,
+      align: 'center',
+    });
+
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(8)
+    .fillColor(colors.primary)
+    .text(footer.readinessLines.join('\n'), textX, y + 11, {
+      width: textWidth,
+      lineGap: 3,
+    });
+
+  doc
+    .font('Helvetica')
+    .fontSize(6.5)
+    .fillColor(colors.secondary)
+    .text(`Verificación interna: ${footer.verificationUrl}`, textX, y + 67, {
+      width: textWidth,
+      ellipsis: true,
+    });
+
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(7)
+    .fillColor(colors.primary)
+    .text(footer.disclaimer, textX, y + 88, {
+      width: textWidth,
+      lineGap: 2,
+    });
+}
+
 function addPageFooters(
   doc: PDFKit.PDFDocument,
   invoice: InvoicePdfDocumentData,
@@ -699,6 +786,23 @@ function addPageFooters(
     pageIndex += 1
   ) {
     doc.switchToPage(pageIndex);
+
+    if (invoice.watermark?.trim()) {
+      doc.save();
+      doc
+        .fillOpacity(0.055)
+        .font('Helvetica-Bold')
+        .fontSize(72)
+        .fillColor(colors.secondary)
+        .rotate(-35, {
+          origin: [PAGE_WIDTH / 2, PAGE_HEIGHT / 2],
+        })
+        .text(invoice.watermark, 110, PAGE_HEIGHT / 2 - 20, {
+          width: PAGE_WIDTH - 220,
+          align: 'center',
+        });
+      doc.restore();
+    }
 
     doc
       .moveTo(MARGIN, FOOTER_Y - 8)
@@ -736,9 +840,11 @@ export function renderInvoicePdf(
       margin: MARGIN,
       bufferPages: true,
       info: {
-        Title: `Factura ${invoice.fullNumber}`,
+        Title: `${invoice.documentTitle ?? 'Factura'} ${invoice.fullNumber}`,
         Author: invoice.sellerLegalName,
-        Subject: `Factura ${invoice.fullNumber}`,
+        Subject: `${invoice.documentTitle ?? 'Factura'} ${invoice.fullNumber}`,
+        CreationDate: invoice.issuedAt,
+        ModDate: invoice.issuedAt,
         Creator: 'Profactur',
       },
     });
@@ -801,7 +907,15 @@ export function renderInvoicePdf(
         y += 22;
       }
 
-      drawNotes(doc, invoice.notes, y);
+      y = drawNotes(doc, invoice.notes, y);
+    }
+
+    if (invoice.demoFooter) {
+      if (y > DEMO_BLOCK_Y - 12) {
+        doc.addPage();
+      }
+
+      drawDemoVerificationBlock(doc, invoice.demoFooter);
     }
 
     addPageFooters(doc, invoice);

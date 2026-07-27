@@ -8,6 +8,7 @@ import { VehiclesModule } from './vehicles/vehicles.module';
 import { CatalogItemsModule } from './catalog-items/catalog-items.module';
 import { InvoiceDraftsModule } from './invoice-drafts/invoice-drafts.module';
 import { InvoicesModule } from './invoices/invoices.module';
+import { DemoDocumentsModule } from './demo-documents/demo-documents.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { InvoicesModule } from './invoices/invoices.module';
     CatalogItemsModule,
     InvoiceDraftsModule,
     InvoicesModule,
+    DemoDocumentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
