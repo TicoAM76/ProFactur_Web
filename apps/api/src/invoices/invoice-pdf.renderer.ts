@@ -239,27 +239,34 @@ function drawDocumentHeader(
   invoice: InvoicePdfDocumentData,
 ): number {
   const top = MARGIN;
+  const sellerName = fallback(
+    invoice.sellerTradeName ?? invoice.sellerLegalName,
+  );
+  const sellerWidth = 300;
 
-  doc
-    .font('Helvetica-Bold')
-    .fontSize(20)
-    .fillColor(colors.primary)
-    .text(
-      fallback(invoice.sellerTradeName ?? invoice.sellerLegalName),
-      MARGIN,
-      top,
-      { width: 310 },
-    );
+  doc.font('Helvetica-Bold').fontSize(18).fillColor(colors.primary);
+
+  const sellerNameHeight = doc.heightOfString(sellerName, {
+    width: sellerWidth,
+    lineGap: 1,
+  });
+
+  doc.text(sellerName, MARGIN, top, {
+    width: sellerWidth,
+    lineGap: 1,
+  });
+
+  const sellerDetailsY = top + sellerNameHeight + 5;
 
   doc
     .font('Helvetica')
-    .fontSize(9)
+    .fontSize(8.5)
     .fillColor(colors.secondary)
-    .text(invoice.sellerLegalName, MARGIN, top + 27, {
-      width: 310,
+    .text(invoice.sellerLegalName, MARGIN, sellerDetailsY, {
+      width: sellerWidth,
     })
-    .text(`NIF: ${invoice.sellerTaxId}`, MARGIN, top + 41, {
-      width: 310,
+    .text(`NIF: ${invoice.sellerTaxId}`, MARGIN, sellerDetailsY + 13, {
+      width: sellerWidth,
     });
 
   doc
@@ -300,16 +307,19 @@ function drawDocumentHeader(
       align: 'right',
     });
 
+  const sellerBottom = sellerDetailsY + 28;
+  const rightBottom = top + 70;
+  const dividerY = Math.max(top + 76, sellerBottom + 4, rightBottom + 4);
+
   doc
-    .moveTo(MARGIN, top + 76)
-    .lineTo(PAGE_WIDTH - MARGIN, top + 76)
+    .moveTo(MARGIN, dividerY)
+    .lineTo(PAGE_WIDTH - MARGIN, dividerY)
     .strokeColor(colors.primary)
     .lineWidth(1.4)
     .stroke();
 
-  return top + 91;
+  return dividerY + 15;
 }
-
 function drawParties(
   doc: PDFKit.PDFDocument,
   invoice: InvoicePdfDocumentData,
@@ -759,7 +769,7 @@ function drawDemoVerificationBlock(
     .font('Helvetica')
     .fontSize(6.5)
     .fillColor(colors.secondary)
-    .text(`Verificación interna: ${footer.verificationUrl}`, textX, y + 67, {
+    .text('Verificación interna disponible al escanear el QR.', textX, y + 67, {
       width: textWidth,
       ellipsis: true,
     });
@@ -790,9 +800,9 @@ function addPageFooters(
     if (invoice.watermark?.trim()) {
       doc.save();
       doc
-        .fillOpacity(0.055)
+        .fillOpacity(0.035)
         .font('Helvetica-Bold')
-        .fontSize(72)
+        .fontSize(66)
         .fillColor(colors.secondary)
         .rotate(-35, {
           origin: [PAGE_WIDTH / 2, PAGE_HEIGHT / 2],
