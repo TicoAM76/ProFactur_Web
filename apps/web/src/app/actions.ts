@@ -152,6 +152,8 @@ export async function createDemoInvoiceAction(
         ? "Mantenimiento preventivo y diagnosis del vehículo."
         : "Reparación de aleta delantera y pintura bicapa.");
 
+  let createdFullNumber: string;
+
   try {
     const { company, customer, vehicle } = await getDemoContext();
 
@@ -206,11 +208,13 @@ export async function createDemoInvoiceAction(
       },
     );
 
-    revalidatePath("/");
-    redirect(`/?created=${encodeURIComponent(document.fullNumber)}`);
+    createdFullNumber = document.fullNumber;
   } catch (error: unknown) {
     redirect(
       "/facturas/nueva?error=" + encodeURIComponent(safeMessage(error)),
     );
   }
+
+  revalidatePath("/");
+  redirect(`/?created=${encodeURIComponent(createdFullNumber)}`);
 }
