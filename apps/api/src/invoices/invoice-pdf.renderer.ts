@@ -921,7 +921,7 @@ export function renderInvoicePdf(
     }
 
     if (invoice.demoFooter) {
-      if (y > DEMO_BLOCK_Y - 12) {
+      if (y > DEMO_BLOCK_Y - 4) {
         doc.addPage();
       }
 
