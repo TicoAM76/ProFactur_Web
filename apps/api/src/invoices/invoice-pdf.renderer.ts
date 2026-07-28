@@ -232,6 +232,10 @@ function getInfoBoxHeight(
   lines: string[],
   width: number,
 ): number {
+  const titleHeight = 18;
+  const contentTopGap = 7;
+  const bottomPadding = 8;
+
   doc.font('Helvetica').fontSize(8);
 
   const contentHeight = doc.heightOfString(lines.join('\n'), {
@@ -239,7 +243,10 @@ function getInfoBoxHeight(
     lineGap: 1,
   });
 
-  return Math.max(44, Math.ceil(21 + contentHeight + 8));
+  return Math.max(
+    48,
+    Math.ceil(titleHeight + contentTopGap + contentHeight + bottomPadding),
+  );
 }
 
 function drawInfoBox(
@@ -251,17 +258,21 @@ function drawInfoBox(
   width: number,
   height: number,
 ): void {
+  const titleHeight = 18;
+
   doc
-    .lineWidth(0.8)
-    .strokeColor(colors.border)
     .roundedRect(x, y, width, height, 4)
-    .stroke();
+    .fillAndStroke(colors.white, colors.border);
+
+  doc.roundedRect(x, y, width, titleHeight, 4).fill(colors.primary);
+
+  doc.rect(x, y + 4, width, titleHeight - 4).fill(colors.primary);
 
   doc
     .font('Helvetica-Bold')
     .fontSize(7.5)
-    .fillColor(colors.secondary)
-    .text(title.toUpperCase(), x + 9, y + 7, {
+    .fillColor(colors.white)
+    .text(title.toUpperCase(), x + 9, y + 5, {
       width: width - 18,
     });
 
@@ -269,7 +280,7 @@ function drawInfoBox(
     .font('Helvetica')
     .fontSize(8)
     .fillColor(colors.primary)
-    .text(lines.join('\n'), x + 9, y + 21, {
+    .text(lines.join('\n'), x + 9, y + titleHeight + 7, {
       width: width - 18,
       lineGap: 1,
     });
