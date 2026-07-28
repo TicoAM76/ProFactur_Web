@@ -1,4 +1,4 @@
-﻿# ProFactur Web
+﻿# FacturTaller Web
 
 Aplicación web de facturación para pequeños negocios, diseñada para emitir y gestionar facturas, consultar estadísticas y preparar la integración con los requisitos de VeriFactu.
 

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   getDemoCompany,
@@ -55,9 +56,15 @@ export default async function Home({ searchParams }: HomePageProps) {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <Link className="brand" href="/">
-          <span className="brand-mark">P</span>
-          <span>Profactur</span>
+        <Link className="brand" href="/" aria-label="FacturTaller">
+          <Image
+            className="brand-logo"
+            src="/brand/facturtaller-logo-dark.svg"
+            alt="FacturTaller, una solución de RN Soluciones Digitales"
+            width={220}
+            height={52}
+            priority
+          />
         </Link>
 
         <nav className="navigation" aria-label="Navegación principal">
@@ -86,7 +93,7 @@ export default async function Home({ searchParams }: HomePageProps) {
         <div className="sidebar-status">
           <span className="status-dot" />
           <div>
-            <strong>Entorno DEMO</strong>
+            <strong>FacturTaller DEMO</strong>
             <small>Sin envío real a AEAT</small>
           </div>
         </div>
@@ -97,6 +104,9 @@ export default async function Home({ searchParams }: HomePageProps) {
           <div>
             <p className="eyebrow">Panel del negocio</p>
             <h1>{company.tradeName ?? company.legalName}</h1>
+            <p className="topbar-brand-caption">
+              Gestionado con FacturTaller · RN Soluciones Digitales
+            </p>
           </div>
 
           <div className="topbar-actions">
@@ -121,7 +131,7 @@ export default async function Home({ searchParams }: HomePageProps) {
         <section className="welcome-card">
           <div>
             <p className="eyebrow">Hoy en tu taller</p>
-            <h2>Facturación clara, trazable y preparada para Veri*Factu.</h2>
+            <h2>Del vehículo a la factura, todo bajo control.</h2>
             <p>
               Gestiona clientes, vehículos y documentos desde un único lugar.
               Este entorno es una simulación y no remite información a la AEAT.
@@ -174,7 +184,7 @@ export default async function Home({ searchParams }: HomePageProps) {
             <div>
               <p>Estado del sistema</p>
               <strong className="green-text">Operativo</strong>
-              <small>API y base de datos activas</small>
+              <small>RN Business Core activo</small>
             </div>
           </article>
 
@@ -183,7 +193,7 @@ export default async function Home({ searchParams }: HomePageProps) {
             <div>
               <p>Envío AEAT</p>
               <strong>Pendiente</strong>
-              <small>Certificado y Bridge no configurados</small>
+              <small>Certificado y RN Bridge no configurados</small>
             </div>
           </article>
         </section>
@@ -279,7 +289,7 @@ export default async function Home({ searchParams }: HomePageProps) {
               <div className="progress-item pending">
                 <span>4</span>
                 <div>
-                  <strong>Profactur Bridge</strong>
+                  <strong>RN Bridge</strong>
                   <small>Instalación local pendiente</small>
                 </div>
               </div>
@@ -303,7 +313,7 @@ export default async function Home({ searchParams }: HomePageProps) {
         </section>
 
         <footer className="dashboard-footer">
-          <span>Profactur DEMO 0.1</span>
+          <span>FacturTaller DEMO 0.2 · RN Soluciones Digitales</span>
           <span>
             {company.city}, {company.province}
           </span>

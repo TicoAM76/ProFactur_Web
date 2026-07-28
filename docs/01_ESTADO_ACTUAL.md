@@ -1,10 +1,10 @@
-# Estado actual de Profactur
+﻿# Estado actual de FacturTaller
 
 Fecha de referencia: 26/07/2026.
 
 ## Resumen
 
-Profactur es un monorepo de facturación orientado a pequeños negocios, con un primer vertical para talleres y una arquitectura prevista para otros sectores.
+FacturTaller es un monorepo de facturación orientado a pequeños negocios, con un primer vertical para talleres y una arquitectura prevista para otros sectores.
 
 ## Infraestructura
 
@@ -63,7 +63,7 @@ Profactur es un monorepo de facturación orientado a pequeños negocios, con un 
 **NO IMPLEMENTADO**
 
 - Envío real a AEAT.
-- Profactur Bridge.
+- RN Bridge.
 - Certificado local.
 - mTLS real.
 - Emparejamiento de dispositivos.
@@ -78,7 +78,7 @@ Las facturas generadas con NIF ficticio `B00000000` no deben enviarse a la AEAT.
 ## Riesgos actuales
 
 1. La autenticación multiusuario y permisos no está cerrada.
-2. Profactur Bridge todavía no existe.
+2. RN Bridge todavía no existe.
 3. El certificado fiscal todavía no se usa.
 4. El PDF se regenera; aún no se conserva como artefacto inmutable.
 5. El producto minorista necesita F2, ticket, devoluciones e inventario avanzado.

@@ -11,7 +11,7 @@
 ## Fiscalidad y dispositivos
 
 - [VERI*FACTU](06_VERIFACTU.md)
-- [Profactur Cloud y Bridge](07_PROFACTUR_CLOUD_Y_BRIDGE.md)
+- [RN Business Core Cloud y Bridge](07_RN_BUSINESS_CORE_Y_RN_BRIDGE.md)
 - [Licenciamiento](08_LICENCIAMIENTO.md)
 
 ## Operación
@@ -33,6 +33,6 @@
 
 - [ADR-001: Monorepo y stack](adr/ADR-001-stack-monorepo.md)
 - [ADR-002: Facturas inmutables](adr/ADR-002-facturas-inmutables.md)
-- [ADR-003: Profactur Bridge](adr/ADR-003-bridge-local.md)
+- [ADR-003: RN Bridge](adr/ADR-003-bridge-local.md)
 - [ADR-004: Licencia por dispositivo](adr/ADR-004-licencia-dispositivo.md)
 - [ADR-005: Producto multisectorial](adr/ADR-005-producto-multisectorial.md)

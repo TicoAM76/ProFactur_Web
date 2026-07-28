@@ -1,4 +1,4 @@
-# Documentación de Profactur
+﻿# Documentación de FacturTaller
 
 La documentación principal del proyecto está en [`docs/00_INDICE.md`](docs/00_INDICE.md).
 

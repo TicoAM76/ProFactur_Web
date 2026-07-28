@@ -2,9 +2,38 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Profactur DEMO | Gestión y facturación",
+  title: {
+    default: "FacturTaller | Gestión integral para talleres",
+    template: "%s | FacturTaller",
+  },
   description:
-    "Entorno demostrativo de Profactur para gestión de facturas, clientes y vehículos.",
+    "Gestión integral para talleres. Del vehículo a la factura, todo bajo control. Una solución de RN Soluciones Digitales.",
+  applicationName: "FacturTaller",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      {
+        url: "/brand/favicon.ico",
+        sizes: "any",
+      },
+      {
+        url: "/brand/facturtaller-symbol.svg",
+        type: "image/svg+xml",
+      },
+      {
+        url: "/brand/icon-32.png",
+        sizes: "32x32",
+        type: "image/png",
+      },
+    ],
+    apple: [
+      {
+        url: "/brand/apple-touch-icon.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
+  },
   robots: {
     index: false,
     follow: false,

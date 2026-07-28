@@ -1,8 +1,8 @@
-# Modelo funcional
+﻿# Modelo funcional
 
 ## Núcleo común
 
-Profactur Core debe ser común para todos los sectores:
+FacturTaller Core debe ser común para todos los sectores:
 
 - Empresas.
 - Usuarios.
@@ -13,7 +13,7 @@ Profactur Core debe ser común para todos los sectores:
 - Cobros.
 - PDF.
 - VERI*FACTU.
-- Profactur Bridge.
+- RN Bridge.
 - Licencias.
 
 ## Perfiles de negocio

@@ -1,4 +1,4 @@
-# Arquitectura técnica
+﻿# Arquitectura técnica
 
 ## Visión general
 
@@ -13,15 +13,15 @@ NestJS API
   ├── PostgreSQL
   ├── Redis
   ├── Worker futuro
-  └── Profactur Bridge futuro
+  └── RN Bridge futuro
           │
           ▼
          AEAT
 ```
 
-## Profactur Cloud
+## RN Business Core Cloud
 
-Profactur Cloud será la fuente de verdad.
+RN Business Core Cloud será la fuente de verdad.
 
 Responsabilidades:
 
@@ -42,7 +42,7 @@ Responsabilidades:
 - Dispositivos.
 - Auditoría.
 
-## Profactur Bridge
+## RN Bridge
 
 **PLANIFICADO**
 

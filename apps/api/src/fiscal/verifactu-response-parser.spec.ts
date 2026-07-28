@@ -1,4 +1,4 @@
-import { parseAeatSoapResponse } from './verifactu-response-parser';
+﻿import { parseAeatSoapResponse } from './verifactu-response-parser';
 
 const SOAP_START = `<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope
@@ -22,7 +22,7 @@ describe('parseAeatSoapResponse', () => {
         </sfR:DatosPresentacion>
         <sfR:Cabecera>
           <sf:ObligadoEmision>
-            <sf:NombreRazon>Taller Profactur Pruebas S.L.</sf:NombreRazon>
+            <sf:NombreRazon>Taller FacturTaller Pruebas S.L.</sf:NombreRazon>
             <sf:NIF>B00000000</sf:NIF>
           </sf:ObligadoEmision>
         </sfR:Cabecera>
@@ -70,7 +70,7 @@ describe('parseAeatSoapResponse', () => {
         <sfR:CSV>CSV-TEST-002</sfR:CSV>
         <sfR:Cabecera>
           <sf:ObligadoEmision>
-            <sf:NombreRazon>Taller Profactur Pruebas S.L.</sf:NombreRazon>
+            <sf:NombreRazon>Taller FacturTaller Pruebas S.L.</sf:NombreRazon>
             <sf:NIF>B00000000</sf:NIF>
           </sf:ObligadoEmision>
         </sfR:Cabecera>
@@ -111,7 +111,7 @@ describe('parseAeatSoapResponse', () => {
       <sfR:RespuestaRegFactuSistemaFacturacion>
         <sfR:Cabecera>
           <sf:ObligadoEmision>
-            <sf:NombreRazon>Taller Profactur Pruebas S.L.</sf:NombreRazon>
+            <sf:NombreRazon>Taller FacturTaller Pruebas S.L.</sf:NombreRazon>
             <sf:NIF>B00000000</sf:NIF>
           </sf:ObligadoEmision>
         </sfR:Cabecera>

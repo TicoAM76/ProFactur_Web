@@ -1,0 +1,66 @@
+﻿
+# Ocurrencias pendientes de revisión
+
+Las coincidencias técnicas pueden conservarse temporalmente.
+Las coincidencias visibles deben revisarse.
+
+- docs/rebranding/02_PLAN_MIGRACION_DE_MARCA.md:26 - - repositorio ProFactur_Web;
+- docs/rebranding/02_PLAN_MIGRACION_DE_MARCA.md:27 - - carpeta local ProFactur_Web;
+- docs/rebranding/02_PLAN_MIGRACION_DE_MARCA.md:28 - - rutas /opt/profactur y /opt/profactur-demo;
+- docs/rebranding/02_PLAN_MIGRACION_DE_MARCA.md:29 - - contenedores profactur-*;
+- docs/rebranding/03_IDENTIFICADORES_TECNICOS_HEREDADOS.md:5 - - profactur en nombres Docker;
+- docs/rebranding/03_IDENTIFICADORES_TECNICOS_HEREDADOS.md:7 - - ProFactur_Web en repositorio y carpeta;
+- docs/rebranding/03_IDENTIFICADORES_TECNICOS_HEREDADOS.md:8 - - /opt/profactur en rutas del VPS;
+- .env.example:1 - POSTGRES_DB=profactur_dev
+- .env.example:2 - POSTGRES_USER=profactur
+- .env.example:5 - DATABASE_URL=postgresql://profactur:CAMBIAR_POR_UNA_CLAVE_SEGURA@postgres:5432/profactur_dev?schema=public
+- apps/api/src/app.controller.spec.ts:20 - expect(response.service).toBe('profactur-api');
+- apps/api/src/app.controller.ts:15 - service: 'profactur-api',
+- apps/api/src/demo-documents/demo-document.utils.spec.ts:13 - '<https://demo.profactur.es/demo/verify/>';
+- apps/api/src/demo-documents/demo-document.utils.spec.ts:16 - '<https://demo.profactur.es/demo/verify/abc123>',
+- apps/api/src/invoices/invoice-pdf.renderer.spec.ts:31 - sellerEmail: '<taller@profactur.test>',
+- apps/api/src/invoices/invoice-pdf.renderer.spec.ts:32 - sellerWebsite: 'www.profactur.test',
+- apps/api/src/invoices/invoice-pdf.renderer.spec.ts:44 - customerEmail: '<rafael@profactur.test>',
+- apps/api/src/invoices/invoice-pdf.renderer.spec.ts:114 - sellerEmail: '<demo@profactur.local>',
+- apps/api/src/invoices/invoice-pdf.renderer.spec.ts:162 - verificationUrl: '<https://demo.profactur.es/demo/verify/example>',
+- apps/web/src/app/actions.ts:5 - import { apiRequest, getDemoContext } from "@/lib/profactur-api";
+- apps/web/src/app/api/demo-documents/[documentId]/pdf/route.ts:2 - import { getApiBaseUrl, getDemoCompany } from "@/lib/profactur-api";
+- apps/web/src/app/facturas/nueva/page.tsx:3 - import { getDemoContext } from "@/lib/profactur-api";
+- apps/web/src/app/page.tsx:6 - } from "@/lib/profactur-api";
+- docs/01_ESTADO_ACTUAL.md:21 - - Ruta de proyecto en VPS: `/opt/profactur`.
+- docs/demo/TALLER_MARTIN_BROTHERS.md:28 - "email": "<demo@profactur.local>"
+- docs/runbooks/DESPLIEGUE_VPS.md:36 - cd /opt/profactur
+- docs/runbooks/DESPLIEGUE_VPS.md:44 - sudo docker run --rm   --user "$(id -u):$(id -g)"   --network profactur-dev_profactur_network   --env-file /opt/profactur/.env   -e HOME=/tmp   -v /opt/profactur:/app   -w /app   node:24-alpine   sh -lc '
+- docs/runbooks/DESPLIEGUE_VPS.md:63 - sudo docker logs --tail 250 profactur-api-dev
+- docs/runbooks/RECUPERACION_DESASTRE.md:14 - 1. Crear `/opt/profactur`.
+- infrastructure/compose.demo.yml:1 - name: profactur-demo
+- infrastructure/compose.demo.yml:6 - container_name: profactur-demo-postgres
+- infrastructure/compose.demo.yml:13 - - profactur_demo_postgres_data:/var/lib/postgresql/data
+- infrastructure/compose.demo.yml:15 - - profactur_demo_network
+- infrastructure/compose.demo.yml:27 - container_name: profactur-demo-redis
+- infrastructure/compose.demo.yml:34 - - profactur_demo_redis_data:/data
+- infrastructure/compose.demo.yml:36 - - profactur_demo_network
+- infrastructure/compose.demo.yml:50 - container_name: profactur-demo-api
+- infrastructure/compose.demo.yml:82 - - profactur_demo_network
+- infrastructure/compose.demo.yml:103 - container_name: profactur-demo-web
+- infrastructure/compose.demo.yml:117 - - profactur_demo_network
+- infrastructure/compose.demo.yml:135 - profactur_demo_network:
+- infrastructure/compose.demo.yml:136 - name: profactur-demo-network
+- infrastructure/compose.demo.yml:140 - profactur_demo_postgres_data:
+- infrastructure/compose.demo.yml:141 - name: profactur-demo-postgres-data
+- infrastructure/compose.demo.yml:143 - profactur_demo_redis_data:
+- infrastructure/compose.demo.yml:144 - name: profactur-demo-redis-data
+- infrastructure/compose.dev.yml:1 - name: profactur-dev
+- infrastructure/compose.dev.yml:12 - - profactur_postgres_data:/var/lib/postgresql/data
+- infrastructure/compose.dev.yml:14 - - profactur_network
+- infrastructure/compose.dev.yml:32 - - profactur_redis_data:/data
+- infrastructure/compose.dev.yml:34 - - profactur_network
+- infrastructure/compose.dev.yml:48 - container_name: profactur-api-dev
+- infrastructure/compose.dev.yml:73 - - profactur_network
+- infrastructure/compose.dev.yml:91 - profactur_network:
+- infrastructure/compose.dev.yml:95 - profactur_postgres_data:
+- infrastructure/compose.dev.yml:96 - profactur_redis_data:
+- package.json:2 - "name": "profactur",
+- package.json:8 - "url": "git+<https://github.com/TicoAM76/ProFactur_Web.git>"
+- package.json:14 - "url": "<https://github.com/TicoAM76/ProFactur_Web/issues>"
+- package.json:16 - "homepage": "<https://github.com/TicoAM76/ProFactur_Web#readme>",

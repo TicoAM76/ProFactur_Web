@@ -1,4 +1,4 @@
-# ADR-006 — Arquitectura Profactur Cloud ↔ Bridge
+﻿# ADR-006 — Arquitectura RN Business Core Cloud ↔ Bridge
 
 ## Estado
 
@@ -6,7 +6,7 @@ Aceptado.
 
 ## Contexto
 
-Profactur necesita:
+FacturTaller necesita:
 
 - licencia por dispositivo;
 - certificado fiscal local;
@@ -19,8 +19,8 @@ Profactur necesita:
 
 Adoptar:
 
-- Profactur Cloud como fuente de verdad y plano de control.
-- Profactur Bridge como agente local común para todos los sectores.
+- RN Business Core Cloud como fuente de verdad y plano de control.
+- RN Bridge como agente local común para todos los sectores.
 - Windows 11 y .NET 10 para el MVP.
 - Polling firmado cada 15–30 segundos.
 - Una instalación fiscal activa por empresa.

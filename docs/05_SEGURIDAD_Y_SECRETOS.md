@@ -1,4 +1,4 @@
-# Seguridad y secretos
+﻿# Seguridad y secretos
 
 ## Prohibiciones
 
@@ -17,8 +17,8 @@ Nunca guardar en Git:
 Decisión:
 
 - Permanece local en el equipo del cliente.
-- Profactur Cloud no lo recibe.
-- Profactur Bridge usa el certificado local.
+- RN Business Core Cloud no lo recibe.
+- RN Bridge usa el certificado local.
 - Cloud solo guarda metadatos públicos.
 
 ## Separación de identidades

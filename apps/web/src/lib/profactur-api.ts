@@ -1,4 +1,4 @@
-const API_BASE_URL =
+﻿const API_BASE_URL =
   process.env.PROFACTUR_API_INTERNAL_URL ?? "http://127.0.0.1:3001";
 
 const DEMO_COMPANY_TAX_ID =
@@ -83,7 +83,7 @@ export async function apiRequest<T>(
     const body = await response.text();
 
     throw new Error(
-      `Profactur API ${response.status}: ${body || response.statusText}`,
+      `RN Business Core API ${response.status}: ${body || response.statusText}`,
     );
   }
 

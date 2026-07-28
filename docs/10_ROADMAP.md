@@ -1,4 +1,4 @@
-# Roadmap
+﻿# Roadmap
 
 ## Fase 1 — Cerrar vertical talleres
 
@@ -10,7 +10,7 @@
 - Autenticación y roles.
 - Piloto.
 
-## Fase 2 — Profactur Bridge Simulator
+## Fase 2 — RN Bridge Simulator
 
 - Pairing.
 - LicensedDevice.

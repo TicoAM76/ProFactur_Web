@@ -1,4 +1,4 @@
-# ADR-007 — Documentos de demostración separados de la facturación fiscal
+﻿# ADR-007 — Documentos de demostración separados de la facturación fiscal
 
 ## Estado
 
@@ -6,9 +6,9 @@ Aceptado.
 
 ## Contexto
 
-Profactur necesita una versión demostrable antes de disponer de:
+FacturTaller necesita una versión demostrable antes de disponer de:
 
-- Profactur Bridge;
+- RN Bridge;
 - certificado digital válido;
 - transporte mTLS;
 - prueba real en AEAT TEST.

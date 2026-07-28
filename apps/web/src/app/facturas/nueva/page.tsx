@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { createDemoInvoiceAction } from "@/app/actions";
 import { getDemoContext } from "@/lib/profactur-api";
@@ -19,18 +20,28 @@ export default async function NewInvoicePage({
   return (
     <main className="form-page">
       <div className="form-page-header">
-        <Link className="back-link" href="/">
-          ← Volver al panel
+        <Link className="form-brand" href="/" aria-label="Volver al panel">
+          <Image
+            src="/brand/facturtaller-logo.svg"
+            alt="FacturTaller"
+            width={250}
+            height={60}
+            priority
+          />
         </Link>
         <span className="demo-pill">ENTORNO DEMO</span>
       </div>
+
+      <Link className="back-link" href="/">
+        ← Volver al panel
+      </Link>
 
       <section className="form-card">
         <div className="form-intro">
           <p className="eyebrow">Nueva factura</p>
           <h1>Crear documento demostrativo</h1>
           <p>
-            El sistema creará un borrador, calculará el IVA, generará el XML,
+            FacturTaller creará el borrador, calculará el IVA, generará el XML,
             reservará un número DEMO y producirá un PDF con QR verificable.
           </p>
         </div>
@@ -84,7 +95,7 @@ export default async function NewInvoicePage({
               placeholder="Descripción del trabajo realizado..."
             />
             <small>
-              Si se deja vacío, Profactur utilizará una descripción
+              Si se deja vacío, FacturTaller utilizará una descripción
               profesional acorde al trabajo seleccionado.
             </small>
           </label>
@@ -107,6 +118,10 @@ export default async function NewInvoicePage({
           </div>
         </form>
       </section>
+
+      <p className="form-corporate-signature">
+        Una solución de RN Soluciones Digitales
+      </p>
     </main>
   );
 }

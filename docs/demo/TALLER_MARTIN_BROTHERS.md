@@ -1,4 +1,4 @@
-# Taller Martín Brothers Paint & Body Shop — Entorno DEMO
+﻿# Taller Martín Brothers Paint & Body Shop — Entorno DEMO
 
 ## Estado
 
@@ -6,7 +6,7 @@
 
 ## Identidad
 
-- Producto: Profactur
+- Producto: FacturTaller
 - Tenant demo: Taller Martín Brothers Paint & Body Shop
 - Perfil: `WORKSHOP`
 - Modo: `DEMO`

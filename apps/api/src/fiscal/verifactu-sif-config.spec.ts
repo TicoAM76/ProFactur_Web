@@ -1,10 +1,10 @@
-import { loadVerifactuSifConfig } from './verifactu-sif-config';
+﻿import { loadVerifactuSifConfig } from './verifactu-sif-config';
 
 describe('loadVerifactuSifConfig', () => {
   const validEnvironment = {
-    VERIFACTU_SIF_PRODUCER_NAME: 'Profactur Desarrollo',
+    VERIFACTU_SIF_PRODUCER_NAME: 'RN Soluciones Digitales',
     VERIFACTU_SIF_PRODUCER_TAX_ID: 'B12345678',
-    VERIFACTU_SIF_NAME: 'Profactur',
+    VERIFACTU_SIF_NAME: 'FacturTaller',
     VERIFACTU_SIF_ID: 'PF',
     VERIFACTU_SIF_VERSION: '0.1.0',
     VERIFACTU_INSTALLATION_NUMBER: '1',
@@ -15,9 +15,9 @@ describe('loadVerifactuSifConfig', () => {
 
   it('carga la identidad completa del sistema', () => {
     expect(loadVerifactuSifConfig(validEnvironment)).toEqual({
-      producerName: 'Profactur Desarrollo',
+      producerName: 'RN Soluciones Digitales',
       producerTaxId: 'B12345678',
-      systemName: 'Profactur',
+      systemName: 'FacturTaller',
       systemId: 'PF',
       version: '0.1.0',
       installationNumber: '1',

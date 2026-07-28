@@ -1,4 +1,4 @@
-# Contrato técnico Cloud ↔ Bridge v1
+﻿# Contrato técnico Cloud ↔ Bridge v1
 
 ## Estado
 
@@ -27,12 +27,12 @@ Este documento define el protocolo inicial. No está implementado todavía.
 ## 2. Headers firmados
 
 ```text
-X-Profactur-Device-Id
-X-Profactur-Timestamp
-X-Profactur-Nonce
-X-Profactur-Body-SHA256
-X-Profactur-Signature
-X-Profactur-Agent-Version
+X-FacturTaller-Device-Id
+X-FacturTaller-Timestamp
+X-FacturTaller-Nonce
+X-FacturTaller-Body-SHA256
+X-FacturTaller-Signature
+X-FacturTaller-Agent-Version
 ```
 
 La firma cubrirá:

@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadRequestException,
   ConflictException,
   Injectable,
@@ -494,7 +494,7 @@ export class DemoDocumentsService {
 
     return {
       status: 'DEMO',
-      recognizedByProfactur: true,
+      recognizedByFacturTaller: true,
       fullNumber: document.fullNumber,
       issuedAt: document.issuedAt,
       seller: snapshot.sellerTradeName ?? snapshot.sellerLegalName,

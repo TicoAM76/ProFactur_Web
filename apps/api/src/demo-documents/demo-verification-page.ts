@@ -1,6 +1,6 @@
 export interface DemoVerificationPageData {
   status: string;
-  recognizedByProfactur: boolean;
+  recognizedByFacturTaller: boolean;
   fullNumber: string;
   issuedAt: Date | string;
   seller: string;
@@ -69,6 +69,21 @@ function statusRow(
   `;
 }
 
+function brandSymbol(): string {
+  return `
+    <svg class="brand-symbol" viewBox="0 0 128 128" aria-hidden="true">
+      <rect width="128" height="128" rx="26" fill="#0D1B2A"/>
+      <path d="M32 20h43l21 21v63H32z" fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round"/>
+      <path d="M75 20v22h21" fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round"/>
+      <path d="M45 56h24M45 70h18M45 84h10" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+      <path d="M78 57v36M66 57h25" stroke="#FF7A00" stroke-width="8" stroke-linecap="round"/>
+      <path d="M50 99l24-24" stroke="#FF7A00" stroke-width="9" stroke-linecap="round"/>
+      <path d="M43 103a15 15 0 0 1 8-25l9 9-8 8z" fill="#FF7A00"/>
+      <circle cx="78" cy="71" r="5" fill="#0D1B2A"/>
+    </svg>
+  `;
+}
+
 export function renderDemoVerificationPage(
   data: DemoVerificationPageData,
 ): string {
@@ -91,7 +106,7 @@ export function renderDemoVerificationPage(
     content="default-src 'none'; style-src 'unsafe-inline'; img-src data:;"
   >
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <title>Verificación ${fullNumber} | Profactur</title>
+  <title>Verificación ${fullNumber} | FacturTaller</title>
   <style>
     :root {
       color-scheme: light;
@@ -100,16 +115,15 @@ export function renderDemoVerificationPage(
       --line: #d9dee8;
       --panel: #ffffff;
       --background: #f4f7fb;
-      --brand: #183b56;
+      --brand: #0d1b2a;
+      --orange: #ff7a00;
       --accent: #087f5b;
       --accent-soft: #e9f8f2;
       --warning: #9a6700;
       --warning-soft: #fff7df;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -126,29 +140,40 @@ export function renderDemoVerificationPage(
     main {
       width: min(100% - 32px, 680px);
       margin: 0 auto;
-      padding: 36px 0 48px;
+      padding: 28px 0 48px;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 11px;
-      margin-bottom: 24px;
-      color: var(--brand);
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
+      gap: 13px;
+      margin-bottom: 22px;
     }
 
-    .brand-mark {
-      display: grid;
-      width: 38px;
-      height: 38px;
-      place-items: center;
-      border-radius: 11px;
-      background: var(--brand);
-      color: #fff;
-      font-size: 17px;
+    .brand-symbol {
+      width: 48px;
+      height: 48px;
+      flex: 0 0 auto;
+    }
+
+    .brand-name {
+      color: var(--brand);
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .brand-name em {
+      color: var(--orange);
+      font-style: normal;
+    }
+
+    .brand-subtitle {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 650;
     }
 
     .card {
@@ -204,9 +229,7 @@ export function renderDemoVerificationPage(
       line-height: 1.55;
     }
 
-    .content {
-      padding: 30px;
-    }
+    .content { padding: 30px; }
 
     .number {
       margin-bottom: 22px;
@@ -277,21 +300,10 @@ export function renderDemoVerificationPage(
       font-size: 14px;
     }
 
-    .status-row:last-child {
-      border-bottom: 0;
-    }
-
-    .status-row strong {
-      text-align: right;
-    }
-
-    .ok {
-      color: var(--accent);
-    }
-
-    .neutral {
-      color: var(--muted);
-    }
+    .status-row:last-child { border-bottom: 0; }
+    .status-row strong { text-align: right; }
+    .ok { color: var(--accent); }
+    .neutral { color: var(--muted); }
 
     .warning {
       padding: 17px;
@@ -332,18 +344,8 @@ export function renderDemoVerificationPage(
         padding-top: 18px;
       }
 
-      .brand {
-        margin-left: 6px;
-      }
-
-      .hero,
-      .content {
-        padding: 22px;
-      }
-
-      .facts {
-        grid-template-columns: 1fr;
-      }
+      .hero, .content { padding: 22px; }
+      .facts { grid-template-columns: 1fr; }
 
       .status-row {
         align-items: flex-start;
@@ -351,30 +353,33 @@ export function renderDemoVerificationPage(
         gap: 5px;
       }
 
-      .status-row strong {
-        text-align: left;
-      }
+      .status-row strong { text-align: left; }
     }
   </style>
 </head>
 <body>
   <main>
     <div class="brand">
-      <span class="brand-mark">P</span>
-      <span>Profactur</span>
+      ${brandSymbol()}
+      <div>
+        <div class="brand-name">Factur<em>Taller</em></div>
+        <span class="brand-subtitle">
+          Una solución de RN Soluciones Digitales
+        </span>
+      </div>
     </div>
 
     <section class="card">
       <header class="hero">
         <div class="verified">
           <span class="check">✓</span>
-          Documento reconocido por Profactur
+          Documento reconocido por FacturTaller
         </div>
 
         <h1>Verificación de documento DEMO</h1>
         <p class="subtitle">
           El código escaneado corresponde a un documento demostrativo
-          registrado en el entorno de Profactur.
+          registrado en el entorno de FacturTaller.
         </p>
       </header>
 
@@ -408,8 +413,8 @@ export function renderDemoVerificationPage(
 
         <div class="status-box">
           ${statusRow(
-            'Reconocido por Profactur',
-            data.recognizedByProfactur,
+            'Reconocido por FacturTaller',
+            data.recognizedByFacturTaller,
             'No',
           )}
           ${statusRow('Enviado a la AEAT', data.aeatSubmitted, 'No enviado')}
@@ -426,7 +431,7 @@ export function renderDemoVerificationPage(
     </section>
 
     <footer>
-      Verificación interna del entorno DEMO de Profactur.<br>
+      Verificación interna del entorno DEMO de FacturTaller.<br>
       Esta pantalla no constituye una respuesta ni una validación de la AEAT.
     </footer>
   </main>

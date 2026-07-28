@@ -1,10 +1,10 @@
-# Profactur Cloud y Profactur Bridge
+﻿# RN Business Core Cloud y RN Bridge
 
 ## Estado
 
 **DECIDIDO / PLANIFICADO**
 
-Este documento define la arquitectura objetivo. Algunas piezas de Profactur Cloud ya existen; Profactur Bridge todavía no está implementado.
+Este documento define la arquitectura objetivo. Algunas piezas de RN Business Core Cloud ya existen; RN Bridge todavía no está implementado.
 
 ---
 
@@ -14,19 +14,19 @@ Este documento define la arquitectura objetivo. Algunas piezas de Profactur Clou
 Navegador o móvil
         │
         ▼
-Profactur Cloud
+RN Business Core Cloud
         │
         ▼
-Profactur Bridge instalado en el PC autorizado
+RN Bridge instalado en el PC autorizado
         │
         ▼
 Certificado fiscal local + AEAT
 ```
 
-Profactur Cloud y Profactur Bridge son dos componentes distintos:
+RN Business Core Cloud y RN Bridge son dos componentes distintos:
 
-- **Profactur Cloud**: fuente de verdad, interfaz, reglas de negocio, licencias, facturas, registros fiscales, colas, auditoría y soporte.
-- **Profactur Bridge**: ejecutor local de confianza, identidad del dispositivo, acceso al certificado local, transporte mTLS y devolución de respuestas.
+- **RN Business Core Cloud**: fuente de verdad, interfaz, reglas de negocio, licencias, facturas, registros fiscales, colas, auditoría y soporte.
+- **RN Bridge**: ejecutor local de confianza, identidad del dispositivo, acceso al certificado local, transporte mTLS y devolución de respuestas.
 
 ---
 
@@ -34,7 +34,7 @@ Profactur Cloud y Profactur Bridge son dos componentes distintos:
 
 Se instalarán dos componentes:
 
-### 2.1. Profactur Bridge Service
+### 2.1. RN Bridge Service
 
 Servicio de Windows que:
 
@@ -50,7 +50,7 @@ Servicio de Windows que:
 - registra estado y errores;
 - actualiza su versión.
 
-### 2.2. Profactur Bridge Control
+### 2.2. RN Bridge Control
 
 Aplicación ligera de bandeja para:
 
@@ -69,7 +69,7 @@ El servicio y la interfaz deben estar separados.
 
 ## 3. Un único Bridge para todos los sectores
 
-Debe existir un único Profactur Bridge para:
+Debe existir un único RN Bridge para:
 
 - talleres;
 - peluquerías;
@@ -104,13 +104,13 @@ Bridge solo conoce:
 - respuesta AEAT;
 - estado.
 
-La lógica sectorial pertenece a Profactur Cloud.
+La lógica sectorial pertenece a RN Business Core Cloud.
 
 ---
 
-## 4. Responsabilidades de Profactur Cloud
+## 4. Responsabilidades de RN Business Core Cloud
 
-Profactur Cloud será la fuente de verdad.
+RN Business Core Cloud será la fuente de verdad.
 
 ### 4.1. Gestión comercial
 
@@ -174,7 +174,7 @@ Profactur Cloud será la fuente de verdad.
 
 ---
 
-## 5. Responsabilidades de Profactur Bridge
+## 5. Responsabilidades de RN Bridge
 
 Bridge debe:
 
@@ -206,7 +206,7 @@ Bridge no debe:
 
 ## 6. Tecnología recomendada
 
-### Profactur Cloud
+### RN Business Core Cloud
 
 - Next.js
 - NestJS
@@ -217,7 +217,7 @@ Bridge no debe:
 - Docker
 - Nginx o proxy equivalente
 
-### Profactur Bridge
+### RN Bridge
 
 - C#
 - .NET 10 LTS

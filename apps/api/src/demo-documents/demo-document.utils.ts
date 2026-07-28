@@ -1,4 +1,4 @@
-import { VerifactuSifConfig } from '../fiscal/verifactu-sif-config';
+﻿import { VerifactuSifConfig } from '../fiscal/verifactu-sif-config';
 import {
   DemoDocumentReadiness,
   DemoDocumentSnapshotLine,
@@ -36,7 +36,7 @@ export function buildDemoOperationDescription(
 
   const combined = [concepts, notes?.trim()].filter(Boolean).join('. ');
 
-  return (combined || 'Documento demostrativo generado por Profactur').slice(
+  return (combined || 'Documento demostrativo generado por FacturTaller').slice(
     0,
     500,
   );
@@ -74,7 +74,7 @@ export function resolveDemoSifConfig(): VerifactuSifConfig {
   return {
     producerName: requiredEnvironmentValue(
       'VERIFACTU_SIF_PRODUCER_NAME',
-      'Profactur Desarrollo',
+      'RN Soluciones Digitales',
       120,
     ),
     producerTaxId: requiredEnvironmentValue(
@@ -82,7 +82,11 @@ export function resolveDemoSifConfig(): VerifactuSifConfig {
       'B12345678',
       9,
     ).toUpperCase(),
-    systemName: requiredEnvironmentValue('VERIFACTU_SIF_NAME', 'Profactur', 30),
+    systemName: requiredEnvironmentValue(
+      'VERIFACTU_SIF_NAME',
+      'FacturTaller',
+      30,
+    ),
     systemId: requiredEnvironmentValue('VERIFACTU_SIF_ID', 'PF', 2),
     version: requiredEnvironmentValue('VERIFACTU_SIF_VERSION', '0.1.0', 50),
     installationNumber: requiredEnvironmentValue(
@@ -118,7 +122,7 @@ export function buildDemoReadiness(): DemoDocumentReadiness {
     aeatSubmitted: false,
     aeatAccepted: false,
     remainingSteps: [
-      'Instalar Profactur Bridge.',
+      'Instalar RN Bridge.',
       'Seleccionar un certificado digital válido.',
       'Enviar el registro al entorno AEAT TEST.',
       'Procesar y conservar la respuesta real de la AEAT.',

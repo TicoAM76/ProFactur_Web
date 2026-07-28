@@ -1,8 +1,8 @@
-# Backup y recuperación
+﻿# Backup y recuperación
 
 ## Objetivo
 
-Poder reconstruir Profactur si se pierde:
+Poder reconstruir FacturTaller si se pierde:
 
 - VPS.
 - Contenedores.

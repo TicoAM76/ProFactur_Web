@@ -1,4 +1,4 @@
-# ADR-003 — Certificado fiscal mediante Bridge local
+﻿# ADR-003 — Certificado fiscal mediante Bridge local
 
 ## Estado
 
@@ -8,7 +8,7 @@ Aceptado.
 
 El certificado permanece en el equipo del cliente.
 
-Profactur Cloud no custodiará:
+RN Business Core Cloud no custodiará:
 
 - PFX/P12.
 - contraseña.

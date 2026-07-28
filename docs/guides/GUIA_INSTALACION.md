@@ -1,4 +1,4 @@
-# Guía de instalación — Borrador
+﻿# Guía de instalación — Borrador
 
 ## Alcance actual
 
@@ -6,12 +6,12 @@ Esta guía es un borrador técnico. No representa todavía un instalador comerci
 
 ## Componentes
 
-- Profactur Cloud.
+- RN Business Core Cloud.
 - PostgreSQL.
 - Redis.
 - API.
 - Frontend.
-- Profactur Bridge futuro.
+- RN Bridge futuro.
 
 ## Instalación Cloud
 

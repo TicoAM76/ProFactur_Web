@@ -1,12 +1,12 @@
-import {
+﻿import {
   buildVerifactuAltaSoapXml,
   VerifactuAltaXmlInput,
 } from './verifactu-alta-xml';
 
 const SIF = {
-  producerName: 'Profactur Desarrollo',
+  producerName: 'RN Soluciones Digitales',
   producerTaxId: 'B12345678',
-  systemName: 'Profactur',
+  systemName: 'FacturTaller',
   systemId: 'PF',
   version: '0.1.0',
   installationNumber: '1',
@@ -24,7 +24,7 @@ function createInput(
   overrides: Partial<VerifactuAltaXmlInput> = {},
 ): VerifactuAltaXmlInput {
   return {
-    issuerName: 'Taller Profactur Pruebas S.L.',
+    issuerName: 'Taller FacturTaller Pruebas S.L.',
     issuerTaxId: 'B00000000',
     invoiceNumber: 'F-2026-000004',
     invoiceDate: '25-07-2026',

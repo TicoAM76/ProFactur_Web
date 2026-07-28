@@ -1,4 +1,4 @@
-import PDFDocument from 'pdfkit';
+﻿import PDFDocument from 'pdfkit';
 import {
   buildTaxBreakdown,
   InvoiceTaxBreakdownRow,
@@ -825,7 +825,7 @@ function addPageFooters(
 
     const footer = [
       invoice.footerNotice,
-      `Generado por Profactur - Página ${pageNumber} de ${range.count}`,
+      `Generado por FacturTaller - RN Soluciones Digitales - Página ${pageNumber} de ${range.count}`,
     ]
       .filter(Boolean)
       .join(' | ');
@@ -855,7 +855,7 @@ export function renderInvoicePdf(
         Subject: `${invoice.documentTitle ?? 'Factura'} ${invoice.fullNumber}`,
         CreationDate: invoice.issuedAt,
         ModDate: invoice.issuedAt,
-        Creator: 'Profactur',
+        Creator: 'FacturTaller',
       },
     });
 

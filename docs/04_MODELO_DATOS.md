@@ -1,10 +1,10 @@
-# Modelo de datos
+﻿# Modelo de datos
 
 ## Entidades principales
 
 ### Company
 
-Empresa usuaria de Profactur.
+Empresa usuaria de FacturTaller.
 
 Incluye:
 

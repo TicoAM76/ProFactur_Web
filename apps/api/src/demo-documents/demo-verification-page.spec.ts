@@ -1,10 +1,10 @@
-import { renderDemoVerificationPage } from './demo-verification-page';
+﻿import { renderDemoVerificationPage } from './demo-verification-page';
 
 describe('demo verification page', () => {
   it('genera una página HTML segura y legible', () => {
     const html = renderDemoVerificationPage({
       status: 'DEMO',
-      recognizedByProfactur: true,
+      recognizedByFacturTaller: true,
       fullNumber: 'DEMO-2026-000003',
       issuedAt: new Date('2026-07-27T12:00:00.000Z'),
       seller: '<script>alert("x")</script>',

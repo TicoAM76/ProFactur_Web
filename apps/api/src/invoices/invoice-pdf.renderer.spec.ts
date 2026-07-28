@@ -1,4 +1,4 @@
-import {
+﻿import {
   formatInvoiceAmount,
   InvoicePdfDocumentData,
   renderInvoicePdf,
@@ -18,8 +18,8 @@ describe('invoice PDF renderer', () => {
       currencyCode: 'EUR',
       notes: 'Sustitución de electroventilador y mano de obra',
 
-      sellerLegalName: 'Taller Profactur SL',
-      sellerTradeName: 'Taller Profactur',
+      sellerLegalName: 'Taller FacturTaller SL',
+      sellerTradeName: 'Taller FacturTaller',
       sellerTaxId: 'B12345678',
       sellerAddressLine1: 'Calle del Taller 1',
       sellerAddressLine2: null,
