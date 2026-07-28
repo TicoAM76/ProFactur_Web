@@ -83,8 +83,8 @@ const PAGE_HEIGHT = 841.89;
 const MARGIN = 42;
 const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
 const FOOTER_Y = PAGE_HEIGHT - MARGIN - 12;
-const DEMO_BLOCK_HEIGHT = 118;
-const DEMO_BLOCK_Y = PAGE_HEIGHT - MARGIN - 145;
+const DEMO_BLOCK_HEIGHT = 100;
+const DEMO_BLOCK_Y = FOOTER_Y - 8 - DEMO_BLOCK_HEIGHT - 6;
 
 const colors = {
   primary: '#1F2937',
@@ -244,22 +244,21 @@ function drawInfoBox(
 
   doc
     .font('Helvetica-Bold')
-    .fontSize(8)
+    .fontSize(7.5)
     .fillColor(colors.secondary)
-    .text(title.toUpperCase(), x + 10, y + 9, {
-      width: width - 20,
+    .text(title.toUpperCase(), x + 9, y + 7, {
+      width: width - 18,
     });
 
   doc
     .font('Helvetica')
-    .fontSize(9)
+    .fontSize(8)
     .fillColor(colors.primary)
-    .text(lines.join('\n'), x + 10, y + 25, {
-      width: width - 20,
-      lineGap: 2,
+    .text(lines.join('\n'), x + 9, y + 21, {
+      width: width - 18,
+      lineGap: 1,
     });
 }
-
 function drawDocumentHeader(
   doc: PDFKit.PDFDocument,
   invoice: InvoicePdfDocumentData,
@@ -269,42 +268,42 @@ function drawDocumentHeader(
     invoice.sellerTradeName ?? invoice.sellerLegalName,
   );
   const sellerWidth = 300;
-  const brandLogoWidth = 150;
-  const brandLogoHeight = 49;
-  const sellerTop = top + brandLogoHeight + 5;
+  const brandLogoWidth = 140;
+  const brandLogoHeight = 46;
+  const sellerTop = top + brandLogoHeight + 2;
 
   doc.image(getBrandLogoBuffer(), MARGIN, top, {
     width: brandLogoWidth,
   });
 
-  doc.font('Helvetica-Bold').fontSize(18).fillColor(colors.primary);
+  doc.font('Helvetica-Bold').fontSize(16).fillColor(colors.primary);
 
   const sellerNameHeight = doc.heightOfString(sellerName, {
     width: sellerWidth,
-    lineGap: 1,
+    lineGap: 0,
   });
 
   doc.text(sellerName, MARGIN, sellerTop, {
     width: sellerWidth,
-    lineGap: 1,
+    lineGap: 0,
   });
 
-  const sellerDetailsY = sellerTop + sellerNameHeight + 5;
+  const sellerDetailsY = sellerTop + sellerNameHeight + 3;
 
   doc
     .font('Helvetica')
-    .fontSize(8.5)
+    .fontSize(8)
     .fillColor(colors.secondary)
     .text(invoice.sellerLegalName, MARGIN, sellerDetailsY, {
       width: sellerWidth,
     })
-    .text(`NIF: ${invoice.sellerTaxId}`, MARGIN, sellerDetailsY + 13, {
+    .text(`NIF: ${invoice.sellerTaxId}`, MARGIN, sellerDetailsY + 11, {
       width: sellerWidth,
     });
 
   doc
     .font('Helvetica-Bold')
-    .fontSize(24)
+    .fontSize(22)
     .fillColor(colors.primary)
     .text(invoice.documentTitle ?? 'FACTURA', 330, top, {
       width: CONTENT_WIDTH - 288,
@@ -314,9 +313,9 @@ function drawDocumentHeader(
   if (invoice.documentSubtitle?.trim()) {
     doc
       .font('Helvetica')
-      .fontSize(7)
+      .fontSize(6.8)
       .fillColor(colors.secondary)
-      .text(invoice.documentSubtitle, 330, top + 25, {
+      .text(invoice.documentSubtitle, 330, top + 23, {
         width: CONTENT_WIDTH - 288,
         align: 'right',
       });
@@ -324,34 +323,34 @@ function drawDocumentHeader(
 
   doc
     .font('Helvetica-Bold')
-    .fontSize(12)
+    .fontSize(11)
     .fillColor(colors.primary)
-    .text(invoice.fullNumber, 330, top + 39, {
+    .text(invoice.fullNumber, 330, top + 36, {
       width: CONTENT_WIDTH - 288,
       align: 'right',
     });
 
   doc
     .font('Helvetica')
-    .fontSize(9)
+    .fontSize(8.5)
     .fillColor(colors.secondary)
-    .text(`Fecha: ${formatInvoiceDate(invoice.issuedAt)}`, 330, top + 56, {
+    .text(`Fecha: ${formatInvoiceDate(invoice.issuedAt)}`, 330, top + 52, {
       width: CONTENT_WIDTH - 288,
       align: 'right',
     });
 
-  const sellerBottom = sellerDetailsY + 28;
-  const rightBottom = top + 70;
-  const dividerY = Math.max(top + 76, sellerBottom + 4, rightBottom + 4);
+  const sellerBottom = sellerDetailsY + 24;
+  const rightBottom = top + 64;
+  const dividerY = Math.max(top + 70, sellerBottom + 3, rightBottom + 3);
 
   doc
     .moveTo(MARGIN, dividerY)
     .lineTo(PAGE_WIDTH - MARGIN, dividerY)
     .strokeColor(colors.primary)
-    .lineWidth(1.4)
+    .lineWidth(1.2)
     .stroke();
 
-  return dividerY + 15;
+  return dividerY + 10;
 }
 function drawParties(
   doc: PDFKit.PDFDocument,
@@ -360,7 +359,7 @@ function drawParties(
 ): number {
   const gap = 12;
   const boxWidth = (CONTENT_WIDTH - gap) / 2;
-  const boxHeight = 130;
+  const boxHeight = 108;
 
   const sellerAddress = joinAddress(
     invoice.sellerAddressLine1,
@@ -419,7 +418,7 @@ function drawParties(
     boxHeight,
   );
 
-  return y + boxHeight + 14;
+  return y + boxHeight + 10;
 }
 
 function drawVehicle(
@@ -440,8 +439,8 @@ function drawVehicle(
     .join(' ');
 
   const vehicleLines = [
-    `Matrícula: ${invoice.vehicleRegistrationNumber}`,
-    `Vehículo: ${fallback(vehicleDescription)}`,
+    `MatrÃ­cula: ${invoice.vehicleRegistrationNumber}`,
+    `VehÃ­culo: ${fallback(vehicleDescription)}`,
     `Bastidor: ${fallback(invoice.vehicleVin)}`,
     `Kilometraje: ${
       invoice.vehicleMileage === null
@@ -450,11 +449,10 @@ function drawVehicle(
     } km`,
   ];
 
-  drawInfoBox(doc, 'Vehículo', vehicleLines, MARGIN, y, CONTENT_WIDTH, 72);
+  drawInfoBox(doc, 'VehÃ­culo', vehicleLines, MARGIN, y, CONTENT_WIDTH, 64);
 
-  return y + 86;
+  return y + 74;
 }
-
 interface TableColumn {
   title: string;
   x: number;
@@ -473,16 +471,16 @@ const columns: TableColumn[] = [
 ];
 
 function drawTableHeader(doc: PDFKit.PDFDocument, y: number): number {
-  const height = 23;
+  const height = 21;
 
   doc.rect(MARGIN, y, CONTENT_WIDTH, height).fill(colors.primary);
 
   for (const column of columns) {
     doc
       .font('Helvetica-Bold')
-      .fontSize(8)
+      .fontSize(7.8)
       .fillColor(colors.white)
-      .text(column.title, column.x + 4, y + 7, {
+      .text(column.title, column.x + 4, y + 6, {
         width: column.width - 8,
         align: column.align ?? 'left',
       });
@@ -490,17 +488,16 @@ function drawTableHeader(doc: PDFKit.PDFDocument, y: number): number {
 
   return y + height;
 }
-
 function getRowHeight(doc: PDFKit.PDFDocument, line: InvoicePdfLine): number {
-  doc.font('Helvetica').fontSize(8);
+  doc.font('Helvetica').fontSize(7.8);
 
   const descriptionHeight = doc.heightOfString(line.description, {
     width: columns[2].width - 8,
+    lineGap: 0,
   });
 
-  return Math.max(25, descriptionHeight + 11);
+  return Math.max(23, descriptionHeight + 9);
 }
-
 function drawTableRow(
   doc: PDFKit.PDFDocument,
   invoice: InvoicePdfDocumentData,
@@ -528,17 +525,17 @@ function drawTableRow(
 
     doc
       .font('Helvetica')
-      .fontSize(8)
+      .fontSize(7.8)
       .fillColor(colors.primary)
-      .text(value, column.x + 4, y + 7, {
+      .text(value, column.x + 4, y + 6, {
         width: column.width - 8,
         align: column.align ?? 'left',
+        lineGap: 0,
       });
   });
 
   return y + rowHeight;
 }
-
 function drawContinuationHeader(
   doc: PDFKit.PDFDocument,
   invoice: InvoicePdfDocumentData,
@@ -563,10 +560,10 @@ function drawContinuationHeader(
 }
 
 function getTaxBreakdownHeight(rows: InvoiceTaxBreakdownRow[]): number {
-  const titleHeight = 23;
-  const headerHeight = 20;
-  const rowHeight = 20;
-  const totalHeight = 23;
+  const titleHeight = 21;
+  const headerHeight = 18;
+  const rowHeight = 18;
+  const totalHeight = 21;
 
   return titleHeight + headerHeight + rows.length * rowHeight + totalHeight;
 }
@@ -579,9 +576,9 @@ function drawTaxBreakdown(
 ): number {
   const x = MARGIN;
   const width = 285;
-  const titleHeight = 23;
-  const headerHeight = 20;
-  const rowHeight = 20;
+  const titleHeight = 21;
+  const headerHeight = 18;
+  const rowHeight = 18;
   const height = getTaxBreakdownHeight(rows);
 
   doc
@@ -690,7 +687,7 @@ function drawTotals(
 ): number {
   const boxWidth = 210;
   const x = PAGE_WIDTH - MARGIN - boxWidth;
-  const rowHeight = 23;
+  const rowHeight = 21;
   const totalRows = 3;
   const height = rowHeight * totalRows;
 
@@ -738,85 +735,84 @@ function drawTotals(
 function drawNotes(doc: PDFKit.PDFDocument, notes: string, y: number): number {
   doc
     .font('Helvetica-Bold')
-    .fontSize(9)
+    .fontSize(8.5)
     .fillColor(colors.primary)
     .text('Observaciones', MARGIN, y);
 
   doc
     .font('Helvetica')
-    .fontSize(9)
+    .fontSize(8)
     .fillColor(colors.secondary)
-    .text(notes, MARGIN, y + 15, {
+    .text(notes, MARGIN, y + 13, {
       width: CONTENT_WIDTH,
-      lineGap: 2,
+      lineGap: 1,
     });
 
   return (
     y +
-    15 +
+    13 +
     doc.heightOfString(notes, {
       width: CONTENT_WIDTH,
-      lineGap: 2,
+      lineGap: 1,
     })
   );
 }
-
 function drawDemoVerificationBlock(
   doc: PDFKit.PDFDocument,
   footer: InvoicePdfDemoFooter,
+  y: number,
 ): void {
   const x = MARGIN;
-  const y = DEMO_BLOCK_Y;
-  const qrSize = 72;
-  const textX = x + 96;
-  const textWidth = CONTENT_WIDTH - 106;
+  const qrSize = 64;
+  const textX = x + 86;
+  const textWidth = CONTENT_WIDTH - 96;
 
   doc
     .roundedRect(x, y, CONTENT_WIDTH, DEMO_BLOCK_HEIGHT, 4)
     .fillAndStroke(colors.light, colors.border);
 
-  doc.image(footer.qrImage, x + 10, y + 10, {
+  doc.image(footer.qrImage, x + 9, y + 9, {
     width: qrSize,
     height: qrSize,
   });
 
   doc
     .font('Helvetica-Bold')
-    .fontSize(8)
+    .fontSize(7)
     .fillColor(colors.primary)
-    .text(footer.qrLabel, x + 6, y + 86, {
-      width: 80,
+    .text(footer.qrLabel, x + 5, y + 76, {
+      width: 72,
       align: 'center',
+      lineGap: 0,
     });
 
   doc
     .font('Helvetica-Bold')
-    .fontSize(8)
+    .fontSize(7.5)
     .fillColor(colors.primary)
-    .text(footer.readinessLines.join('\n'), textX, y + 11, {
+    .text(footer.readinessLines.join('\n'), textX, y + 10, {
       width: textWidth,
-      lineGap: 3,
+      lineGap: 2,
     });
 
   doc
     .font('Helvetica')
     .fontSize(6.5)
     .fillColor(colors.secondary)
-    .text('Verificación interna disponible al escanear el QR.', textX, y + 67, {
+    .text('VerificaciÃ³n interna mediante QR.', textX, y + 54, {
       width: textWidth,
       ellipsis: true,
     });
 
   doc
     .font('Helvetica-Bold')
-    .fontSize(7)
+    .fontSize(6.8)
     .fillColor(colors.primary)
-    .text(footer.disclaimer, textX, y + 88, {
+    .text(footer.disclaimer, textX, y + 73, {
       width: textWidth,
-      lineGap: 2,
+      lineGap: 1,
     });
 }
-
 function addPageFooters(
   doc: PDFKit.PDFDocument,
   invoice: InvoicePdfDocumentData,
@@ -920,11 +916,11 @@ export function renderInvoicePdf(
       y = drawTableRow(doc, invoice, line, y);
     }
 
-    y += 18;
+    y += 10;
 
     const taxBreakdown = buildTaxBreakdown(invoice.lines);
     const taxBreakdownHeight = getTaxBreakdownHeight(taxBreakdown);
-    const totalsHeight = 69;
+    const totalsHeight = 63;
     const fiscalSectionHeight = Math.max(taxBreakdownHeight, totalsHeight);
 
     if (y + fiscalSectionHeight > PAGE_HEIGHT - MARGIN - 32) {
@@ -940,27 +936,27 @@ export function renderInvoicePdf(
     if (invoice.notes?.trim()) {
       const notesHeight = doc.heightOfString(invoice.notes, {
         width: CONTENT_WIDTH,
-        lineGap: 2,
+        lineGap: 1,
       });
 
-      if (y + notesHeight + 45 > PAGE_HEIGHT - MARGIN - 32) {
+      if (y + notesHeight + 32 > PAGE_HEIGHT - MARGIN - 32) {
         doc.addPage();
         y = MARGIN;
       } else {
-        y += 22;
+        y += 12;
       }
 
       y = drawNotes(doc, invoice.notes, y);
     }
-
     if (invoice.demoFooter) {
-      if (y > DEMO_BLOCK_Y - 4) {
+      const requiredGap = 8;
+
+      if (y + requiredGap > DEMO_BLOCK_Y) {
         doc.addPage();
       }
 
-      drawDemoVerificationBlock(doc, invoice.demoFooter);
+      drawDemoVerificationBlock(doc, invoice.demoFooter, DEMO_BLOCK_Y);
     }
-
     addPageFooters(doc, invoice);
     doc.end();
   });

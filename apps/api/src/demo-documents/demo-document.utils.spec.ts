@@ -25,9 +25,8 @@ describe('demo document utils', () => {
 
   it('mantiene el texto exacto del pie DEMO', () => {
     expect(getDemoFooterLines()).toEqual([
-      'Estructura validada contra el XSD oficial.',
-      'Registro y XML preparados para prueba de integración.',
-      'Pendiente de certificado válido y envío real en TEST.',
+      'Estructura y XML preparados para integraciÃ³n VeriFactu.',
+      'Pendiente de certificado y envÃ­o real en AEAT TEST.',
     ]);
   });
 

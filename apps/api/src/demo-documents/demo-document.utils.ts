@@ -1,13 +1,12 @@
-﻿import { VerifactuSifConfig } from '../fiscal/verifactu-sif-config';
+import { VerifactuSifConfig } from '../fiscal/verifactu-sif-config';
 import {
   DemoDocumentReadiness,
   DemoDocumentSnapshotLine,
 } from './demo-document.types';
 
 const DEMO_FOOTER_LINES = [
-  'Estructura validada contra el XSD oficial.',
-  'Registro y XML preparados para prueba de integración.',
-  'Pendiente de certificado válido y envío real en TEST.',
+  'Estructura y XML preparados para integraciÃ³n VeriFactu.',
+  'Pendiente de certificado y envÃ­o real en AEAT TEST.',
 ] as const;
 
 export function getDemoFooterLines(): readonly string[] {
