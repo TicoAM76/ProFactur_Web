@@ -227,6 +227,21 @@ function buildContactLines(
   return lines;
 }
 
+function getInfoBoxHeight(
+  doc: PDFKit.PDFDocument,
+  lines: string[],
+  width: number,
+): number {
+  doc.font('Helvetica').fontSize(8);
+
+  const contentHeight = doc.heightOfString(lines.join('\n'), {
+    width: width - 18,
+    lineGap: 1,
+  });
+
+  return Math.max(44, Math.ceil(21 + contentHeight + 8));
+}
+
 function drawInfoBox(
   doc: PDFKit.PDFDocument,
   title: string,
@@ -359,7 +374,6 @@ function drawParties(
 ): number {
   const gap = 12;
   const boxWidth = (CONTENT_WIDTH - gap) / 2;
-  const boxHeight = 108;
 
   const sellerAddress = joinAddress(
     invoice.sellerAddressLine1,
@@ -388,30 +402,31 @@ function drawParties(
     invoice.customerEmail,
   );
 
-  drawInfoBox(
-    doc,
-    'Emisor',
-    [
-      invoice.sellerLegalName,
-      `NIF: ${invoice.sellerTaxId}`,
-      ...sellerAddress,
-      ...sellerContacts,
-    ],
-    MARGIN,
-    y,
-    boxWidth,
-    boxHeight,
+  const sellerLines = [
+    invoice.sellerLegalName,
+    `NIF: ${invoice.sellerTaxId}`,
+    ...sellerAddress,
+    ...sellerContacts,
+  ];
+
+  const customerLines = [
+    invoice.customerLegalName,
+    `NIF: ${fallback(invoice.customerTaxId)}`,
+    ...customerAddress,
+    ...customerContacts,
+  ];
+
+  const boxHeight = Math.max(
+    getInfoBoxHeight(doc, sellerLines, boxWidth),
+    getInfoBoxHeight(doc, customerLines, boxWidth),
   );
+
+  drawInfoBox(doc, 'Emisor', sellerLines, MARGIN, y, boxWidth, boxHeight);
 
   drawInfoBox(
     doc,
     'Cliente',
-    [
-      invoice.customerLegalName,
-      `NIF: ${fallback(invoice.customerTaxId)}`,
-      ...customerAddress,
-      ...customerContacts,
-    ],
+    customerLines,
     MARGIN + boxWidth + gap,
     y,
     boxWidth,
@@ -420,7 +435,6 @@ function drawParties(
 
   return y + boxHeight + 10;
 }
-
 function drawVehicle(
   doc: PDFKit.PDFDocument,
   invoice: InvoicePdfDocumentData,
@@ -439,8 +453,8 @@ function drawVehicle(
     .join(' ');
 
   const vehicleLines = [
-    `MatrÃ­cula: ${invoice.vehicleRegistrationNumber}`,
-    `VehÃ­culo: ${fallback(vehicleDescription)}`,
+    `Matr\u00edcula: ${invoice.vehicleRegistrationNumber}`,
+    `Veh\u00edculo: ${fallback(vehicleDescription)}`,
     `Bastidor: ${fallback(invoice.vehicleVin)}`,
     `Kilometraje: ${
       invoice.vehicleMileage === null
@@ -449,9 +463,19 @@ function drawVehicle(
     } km`,
   ];
 
-  drawInfoBox(doc, 'VehÃ­culo', vehicleLines, MARGIN, y, CONTENT_WIDTH, 64);
+  const boxHeight = getInfoBoxHeight(doc, vehicleLines, CONTENT_WIDTH);
 
-  return y + 74;
+  drawInfoBox(
+    doc,
+    'Veh\u00edculo',
+    vehicleLines,
+    MARGIN,
+    y,
+    CONTENT_WIDTH,
+    boxHeight,
+  );
+
+  return y + boxHeight + 10;
 }
 interface TableColumn {
   title: string;
@@ -799,7 +823,7 @@ function drawDemoVerificationBlock(
     .font('Helvetica')
     .fontSize(6.5)
     .fillColor(colors.secondary)
-    .text('VerificaciÃ³n interna mediante QR.', textX, y + 54, {
+    .text('Verificaci\u00f3n interna mediante QR.', textX, y + 54, {
       width: textWidth,
       ellipsis: true,
     });

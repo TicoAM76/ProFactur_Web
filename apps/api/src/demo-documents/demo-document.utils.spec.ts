@@ -25,11 +25,10 @@ describe('demo document utils', () => {
 
   it('mantiene el texto exacto del pie DEMO', () => {
     expect(getDemoFooterLines()).toEqual([
-      'Estructura y XML preparados para integraciÃ³n VeriFactu.',
-      'Pendiente de certificado y envÃ­o real en AEAT TEST.',
+      'Estructura y XML preparados para integraci\u00f3n VeriFactu.',
+      'Pendiente de certificado y env\u00edo real en AEAT TEST.',
     ]);
   });
-
   it('construye una descripción de operación desde las líneas', () => {
     const result = buildDemoOperationDescription(
       [

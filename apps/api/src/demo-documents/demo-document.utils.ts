@@ -5,10 +5,9 @@ import {
 } from './demo-document.types';
 
 const DEMO_FOOTER_LINES = [
-  'Estructura y XML preparados para integraciÃ³n VeriFactu.',
-  'Pendiente de certificado y envÃ­o real en AEAT TEST.',
+  'Estructura y XML preparados para integraci\u00f3n VeriFactu.',
+  'Pendiente de certificado y env\u00edo real en AEAT TEST.',
 ] as const;
-
 export function getDemoFooterLines(): readonly string[] {
   return DEMO_FOOTER_LINES;
 }
