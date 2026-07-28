@@ -289,7 +289,7 @@ function drawDocumentHeader(
     lineGap: 1,
   });
 
-  const sellerDetailsY = top + sellerNameHeight + 5;
+  const sellerDetailsY = sellerTop + sellerNameHeight + 5;
 
   doc
     .font('Helvetica')
