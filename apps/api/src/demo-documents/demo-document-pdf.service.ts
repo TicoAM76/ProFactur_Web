@@ -65,9 +65,14 @@ export class DemoDocumentPdfService {
       sellerCountryCode: snapshot.sellerCountryCode,
       sellerPhone: snapshot.sellerPhone,
       sellerEmail: snapshot.sellerEmail,
-      sellerWebsite: snapshot.sellerWebsite,
+      sellerWebsite: snapshot.sellerWebsite?.toLowerCase().includes('profactur')
+        ? null
+        : snapshot.sellerWebsite,
 
-      customerLegalName: snapshot.customerLegalName,
+      customerLegalName: snapshot.customerLegalName.replace(
+        /Profactur/gi,
+        'FacturTaller',
+      ),
       customerTradeName: snapshot.customerTradeName,
       customerTaxId: snapshot.customerTaxId,
       customerAddressLine1: snapshot.customerAddressLine1,
