@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import PDFDocument from 'pdfkit';
 import {
@@ -94,17 +94,26 @@ const colors = {
   white: '#FFFFFF',
 };
 
-const BRAND_LOGO_PATH = join(
-  __dirname,
-  '..',
-  'assets',
-  'facturtaller-logo-pdf.png',
-);
+const BRAND_LOGO_PATHS = [
+  join(__dirname, '..', 'assets', 'facturtaller-logo-pdf.png'),
+  join(__dirname, '..', '..', 'assets', 'facturtaller-logo-pdf.png'),
+];
 
+function resolveBrandLogoPath(): string {
+  const path = BRAND_LOGO_PATHS.find((candidate) => existsSync(candidate));
+
+  if (!path) {
+    throw new Error(
+      `No se encontró el logo de FacturTaller. Rutas comprobadas: ${BRAND_LOGO_PATHS.join(', ')}`,
+    );
+  }
+
+  return path;
+}
 let brandLogoBuffer: Buffer | null = null;
 
 function getBrandLogoBuffer(): Buffer {
-  brandLogoBuffer ??= readFileSync(BRAND_LOGO_PATH);
+  brandLogoBuffer ??= readFileSync(resolveBrandLogoPath());
 
   return brandLogoBuffer;
 }
