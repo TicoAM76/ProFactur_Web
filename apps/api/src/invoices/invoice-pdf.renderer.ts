@@ -1,4 +1,6 @@
-﻿import PDFDocument from 'pdfkit';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import PDFDocument from 'pdfkit';
 import {
   buildTaxBreakdown,
   InvoiceTaxBreakdownRow,
@@ -91,6 +93,21 @@ const colors = {
   light: '#F3F4F6',
   white: '#FFFFFF',
 };
+
+const BRAND_LOGO_PATH = join(
+  __dirname,
+  '..',
+  'assets',
+  'facturtaller-logo-pdf.png',
+);
+
+let brandLogoBuffer: Buffer | null = null;
+
+function getBrandLogoBuffer(): Buffer {
+  brandLogoBuffer ??= readFileSync(BRAND_LOGO_PATH);
+
+  return brandLogoBuffer;
+}
 
 function normalizeSpaces(value: string): string {
   return value.replace(/[\u00A0\u202F]/g, ' ');
@@ -243,6 +260,13 @@ function drawDocumentHeader(
     invoice.sellerTradeName ?? invoice.sellerLegalName,
   );
   const sellerWidth = 300;
+  const brandLogoWidth = 150;
+  const brandLogoHeight = 49;
+  const sellerTop = top + brandLogoHeight + 5;
+
+  doc.image(getBrandLogoBuffer(), MARGIN, top, {
+    width: brandLogoWidth,
+  });
 
   doc.font('Helvetica-Bold').fontSize(18).fillColor(colors.primary);
 
@@ -251,7 +275,7 @@ function drawDocumentHeader(
     lineGap: 1,
   });
 
-  doc.text(sellerName, MARGIN, top, {
+  doc.text(sellerName, MARGIN, sellerTop, {
     width: sellerWidth,
     lineGap: 1,
   });
