@@ -519,8 +519,6 @@ model FiscalSubmission {
   soapFaultMessage String?
   transportError   String?
 
-  certificateFingerprint String? @db.VarChar(128)
-
   startedAt   DateTime  @default(now())
   completedAt DateTime?
   durationMs  Int?
