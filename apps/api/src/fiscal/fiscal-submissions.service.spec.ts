@@ -14,6 +14,41 @@ import { FiscalSubmissionsService } from './fiscal-submissions.service';
 import { FiscalXmlService } from './fiscal-xml.service';
 import { calculateSubmissionRequestHash } from './verifactu-submission-request';
 
+type SubmissionItemCreateData = {
+  fiscalRecordId: string;
+  position: number;
+  attemptNumber: number;
+  operation: FiscalRecordKind;
+};
+
+type SubmissionCreateInput = {
+  data: {
+    companyId: string;
+    chainId: string;
+    environment: FiscalEnvironment;
+    installationNumber: string;
+    state: FiscalSubmissionState;
+    endpoint: string;
+    requestXml: string;
+    requestHash: string;
+    items: {
+      create: SubmissionItemCreateData;
+    };
+  };
+  include?: {
+    items?: boolean;
+  };
+};
+
+type SubmissionCreateResult = Omit<SubmissionCreateInput['data'], 'items'> & {
+  id: string;
+  items?: Array<
+    SubmissionItemCreateData & {
+      id: string;
+    }
+  >;
+};
+
 describe('FiscalSubmissionsService', () => {
   const companyId = '10000000-0000-4000-8000-000000000001';
   const recordId = '20000000-0000-4000-8000-000000000002';
@@ -26,9 +61,13 @@ describe('FiscalSubmissionsService', () => {
   const fiscalRecordFindFirst = jest.fn();
   const activeAttemptFindFirst = jest.fn();
   const attemptsAggregate = jest.fn();
-  const submissionCreate = jest.fn();
+  const submissionCreate =
+    jest.fn<
+      (input: SubmissionCreateInput) => Promise<SubmissionCreateResult>
+    >();
   const transactionRunner = jest.fn();
   const generateAltaXml = jest.fn();
+  let lastSubmissionCreateInput: SubmissionCreateInput | undefined;
 
   const transaction = {
     fiscalRecord: {
@@ -54,8 +93,17 @@ describe('FiscalSubmissionsService', () => {
   let service: FiscalSubmissionsService;
   let previousEndpointOverride: string | undefined;
 
+  function getSubmissionCreateInput(): SubmissionCreateInput {
+    if (!lastSubmissionCreateInput) {
+      throw new Error('FiscalSubmission.create no recibió ningún argumento.');
+    }
+
+    return lastSubmissionCreateInput;
+  }
+
   beforeEach(() => {
     jest.clearAllMocks();
+    lastSubmissionCreateInput = undefined;
 
     previousEndpointOverride = process.env.VERIFACTU_SOAP_ENDPOINT;
     delete process.env.VERIFACTU_SOAP_ENDPOINT;
@@ -85,24 +133,37 @@ describe('FiscalSubmissionsService', () => {
       },
     });
 
-    submissionCreate.mockImplementation(async ({ data, include }) => ({
-      id: submissionId,
-      ...data,
-      items: include?.items
-        ? [
-            {
-              id: '50000000-0000-4000-8000-000000000005',
-              ...data.items.create,
-            },
-          ]
-        : undefined,
-    }));
+    submissionCreate.mockImplementation(
+      (input: SubmissionCreateInput): Promise<SubmissionCreateResult> => {
+        lastSubmissionCreateInput = input;
+
+        const { data, include } = input;
+
+        return Promise.resolve({
+          id: submissionId,
+          companyId: data.companyId,
+          chainId: data.chainId,
+          environment: data.environment,
+          installationNumber: data.installationNumber,
+          state: data.state,
+          endpoint: data.endpoint,
+          requestXml: data.requestXml,
+          requestHash: data.requestHash,
+          items: include?.items
+            ? [
+                {
+                  id: '50000000-0000-4000-8000-000000000005',
+                  ...data.items.create,
+                },
+              ]
+            : undefined,
+        });
+      },
+    );
 
     transactionRunner.mockImplementation(
       async (
-        callback: (
-          transactionClient: typeof transaction,
-        ) => Promise<unknown>,
+        callback: (transactionClient: typeof transaction) => Promise<unknown>,
       ) => callback(transaction),
     );
 
@@ -127,7 +188,7 @@ describe('FiscalSubmissionsService', () => {
 
     expect(submissionCreate).toHaveBeenCalledTimes(1);
 
-    const createInput = submissionCreate.mock.calls[0][0];
+    const createInput = getSubmissionCreateInput();
     const requestHash = calculateSubmissionRequestHash(requestXml);
 
     expect(createInput.data).toEqual({
@@ -215,7 +276,7 @@ describe('FiscalSubmissionsService', () => {
 
     await service.prepare(companyId, recordId);
 
-    const createInput = submissionCreate.mock.calls[0][0];
+    const createInput = getSubmissionCreateInput();
 
     expect(createInput.data.items.create.attemptNumber).toBe(3);
   });
@@ -226,7 +287,7 @@ describe('FiscalSubmissionsService', () => {
 
     await service.prepare(companyId, recordId);
 
-    const createInput = submissionCreate.mock.calls[0][0];
+    const createInput = getSubmissionCreateInput();
 
     expect(createInput.data.endpoint).toBe(
       'https://bridge-test.facturtaller.local/verifactu',
