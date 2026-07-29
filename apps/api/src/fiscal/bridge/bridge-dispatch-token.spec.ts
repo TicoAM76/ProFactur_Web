@@ -1,5 +1,6 @@
 import {
   BRIDGE_DISPATCH_TOKEN_TTL_MS,
+  BRIDGE_EXECUTION_TOKEN_TTL_MS,
   createBridgeDispatchToken,
   hashBridgeDispatchToken,
 } from './bridge-dispatch-token';
@@ -33,8 +34,9 @@ describe('bridge-dispatch-token', () => {
     expect(result.expiresAt.toISOString()).toBe('2026-07-29T16:01:00.000Z');
   });
 
-  it('usa cinco minutos como duración predeterminada', () => {
+  it('define cinco minutos para despacho y diez para ejecución', () => {
     expect(BRIDGE_DISPATCH_TOKEN_TTL_MS).toBe(300_000);
+    expect(BRIDGE_EXECUTION_TOKEN_TTL_MS).toBe(600_000);
   });
 
   it('rechaza tokens vacíos al calcular el hash', () => {

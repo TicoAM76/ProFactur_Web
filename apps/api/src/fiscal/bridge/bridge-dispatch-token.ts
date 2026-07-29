@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 
 export const BRIDGE_DISPATCH_TOKEN_TTL_MS = 5 * 60 * 1000;
+export const BRIDGE_EXECUTION_TOKEN_TTL_MS = 10 * 60 * 1000;
 
 const BRIDGE_DISPATCH_TOKEN_BYTES = 32;
 
