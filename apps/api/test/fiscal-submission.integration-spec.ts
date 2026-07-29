@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import {
   CatalogItemType,
@@ -12,6 +12,8 @@ import {
   InvoiceDraftStatus,
   Prisma,
 } from '../src/generated/prisma/client';
+import { BridgeDispatchService } from '../src/fiscal/bridge/bridge-dispatch.service';
+import { hashBridgeDispatchToken } from '../src/fiscal/bridge/bridge-dispatch-token';
 import { FiscalRecordsService } from '../src/fiscal/fiscal-records.service';
 import { FiscalSubmissionsService } from '../src/fiscal/fiscal-submissions.service';
 import { FiscalXmlService } from '../src/fiscal/fiscal-xml.service';
@@ -25,6 +27,7 @@ describe('Preparación fiscal VERI*FACTU con PostgreSQL real', () => {
   let prisma: PrismaService;
   let invoicesService: InvoicesService;
   let fiscalSubmissionsService: FiscalSubmissionsService;
+  let bridgeDispatchService: BridgeDispatchService;
 
   async function deleteOnlyIntegrationTestData(): Promise<void> {
     const company = await prisma.company.findUnique({
@@ -71,6 +74,12 @@ describe('Preparación fiscal VERI*FACTU con PostgreSQL real', () => {
       const submissionIds = submissions.map((submission) => submission.id);
       const invoiceIds = invoices.map((invoice) => invoice.id);
       const draftIds = drafts.map((draft) => draft.id);
+
+      await transaction.fiscalBridgeDispatch.deleteMany({
+        where: {
+          companyId: company.id,
+        },
+      });
 
       await transaction.fiscalSubmissionItem.deleteMany({
         where: {
@@ -173,6 +182,8 @@ describe('Preparación fiscal VERI*FACTU con PostgreSQL real', () => {
       prisma,
       new FiscalXmlService(prisma),
     );
+
+    bridgeDispatchService = new BridgeDispatchService(prisma);
   });
 
   afterAll(async () => {
@@ -304,5 +315,70 @@ describe('Preparación fiscal VERI*FACTU con PostgreSQL real', () => {
         },
       }),
     ).toBe(1);
+
+    const createdDispatch = await bridgeDispatchService.createDispatch(
+      company.id,
+      submission.id,
+    );
+
+    expect(createdDispatch.dispatchToken).toMatch(/^[A-Za-z0-9_-]{43}$/);
+    expect(createdDispatch.submissionId).toBe(submission.id);
+    expect(createdDispatch.requestHash).toBe(submission.requestHash);
+
+    const persistedDispatch = await prisma.fiscalBridgeDispatch.findUnique({
+      where: {
+        submissionId: submission.id,
+      },
+    });
+
+    expect(persistedDispatch).not.toBeNull();
+    expect(persistedDispatch?.tokenHash).toBe(
+      hashBridgeDispatchToken(createdDispatch.dispatchToken),
+    );
+    expect(persistedDispatch?.tokenHash).not.toBe(
+      createdDispatch.dispatchToken,
+    );
+    expect(persistedDispatch?.claimedAt).toBeNull();
+
+    const plaintextTokenColumns = await prisma.$queryRaw<
+      Array<{ column_name: string }>
+    >`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'fiscal_bridge_dispatches'
+        AND column_name IN ('token', 'dispatchToken')
+    `;
+
+    expect(plaintextTokenColumns).toHaveLength(0);
+
+    const claimedDispatch = await bridgeDispatchService.claimDispatch(
+      createdDispatch.dispatchToken,
+    );
+
+    expect(claimedDispatch.companyId).toBe(company.id);
+    expect(claimedDispatch.submissionId).toBe(submission.id);
+    expect(claimedDispatch.requestHash).toBe(submission.requestHash);
+    expect(claimedDispatch.requestXml).toBe(submission.requestXml);
+    expect(claimedDispatch.endpoint).toBe(submission.endpoint);
+
+    const reservedSubmission = await prisma.fiscalSubmission.findUniqueOrThrow({
+      where: {
+        id: submission.id,
+      },
+    });
+
+    const consumedDispatch =
+      await prisma.fiscalBridgeDispatch.findUniqueOrThrow({
+        where: {
+          submissionId: submission.id,
+        },
+      });
+
+    expect(reservedSubmission.state).toBe(FiscalSubmissionState.SENDING);
+    expect(consumedDispatch.claimedAt).not.toBeNull();
+
+    await expect(
+      bridgeDispatchService.claimDispatch(createdDispatch.dispatchToken),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
   });
 });

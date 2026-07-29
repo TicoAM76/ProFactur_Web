@@ -88,17 +88,18 @@ model Company {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  customers          Customer[]
-  vehicles           Vehicle[]
-  catalogItems       CatalogItem[]
-  invoiceDrafts      InvoiceDraft[]
-  invoiceSeries      InvoiceSeries[]
-  invoices           Invoice[]
-  fiscalChains       FiscalChain[]
-  fiscalRecords      FiscalRecord[]
-  fiscalSubmissions  FiscalSubmission[]
-  demoDocumentSeries DemoDocumentSeries[]
-  demoDocuments      DemoDocument[]
+  customers              Customer[]
+  vehicles               Vehicle[]
+  catalogItems           CatalogItem[]
+  invoiceDrafts          InvoiceDraft[]
+  invoiceSeries          InvoiceSeries[]
+  invoices               Invoice[]
+  fiscalChains           FiscalChain[]
+  fiscalRecords          FiscalRecord[]
+  fiscalSubmissions      FiscalSubmission[]
+  fiscalBridgeDispatches FiscalBridgeDispatch[]
+  demoDocumentSeries     DemoDocumentSeries[]
+  demoDocuments          DemoDocument[]
 
   @@map("companies")
 }
@@ -527,14 +528,37 @@ model FiscalSubmission {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  company Company                @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  chain   FiscalChain            @relation(fields: [chainId], references: [id], onDelete: Restrict)
-  items   FiscalSubmissionItem[]
+  company        Company                @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  chain          FiscalChain            @relation(fields: [chainId], references: [id], onDelete: Restrict)
+  items          FiscalSubmissionItem[]
+  bridgeDispatch FiscalBridgeDispatch?
 
   @@index([companyId, state])
   @@index([chainId, createdAt])
   @@index([state, nextRetryAt])
   @@map("fiscal_submissions")
+}
+
+model FiscalBridgeDispatch {
+  id           String @id @default(uuid()) @db.Uuid
+  companyId    String @db.Uuid
+  submissionId String @unique @db.Uuid
+
+  tokenHash   String @unique @db.Char(64)
+  requestHash String @db.Char(64)
+
+  expiresAt DateTime
+  claimedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company    Company          @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  submission FiscalSubmission @relation(fields: [submissionId], references: [id], onDelete: Restrict)
+
+  @@index([companyId, expiresAt])
+  @@index([expiresAt, claimedAt])
+  @@map("fiscal_bridge_dispatches")
 }
 
 model FiscalSubmissionItem {
