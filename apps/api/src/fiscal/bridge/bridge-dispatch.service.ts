@@ -12,6 +12,7 @@ import {
 } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
+  BRIDGE_EXECUTION_TOKEN_TTL_MS,
   createBridgeDispatchToken,
   hashBridgeDispatchToken,
 } from './bridge-dispatch-token';
@@ -35,6 +36,8 @@ export interface ClaimedBridgeDispatch {
   environment: FiscalEnvironment;
   installationNumber: string;
   claimedAt: Date;
+  executionToken: string;
+  executionExpiresAt: Date;
 }
 
 @Injectable()
@@ -110,6 +113,9 @@ export class BridgeDispatchService {
               requestHash: submission.requestHash,
               expiresAt: generatedToken.expiresAt,
               claimedAt: null,
+              executionTokenHash: null,
+              executionExpiresAt: null,
+              completedAt: null,
             },
           });
         } else {
@@ -170,6 +176,11 @@ export class BridgeDispatchService {
     tokenHash: string,
     now: Date,
   ): Promise<ClaimedBridgeDispatch> {
+    const executionToken = createBridgeDispatchToken(
+      now,
+      BRIDGE_EXECUTION_TOKEN_TTL_MS,
+    );
+
     return this.prisma.$transaction(
       async (transaction) => {
         const dispatch = await transaction.fiscalBridgeDispatch.findUnique({
@@ -217,12 +228,17 @@ export class BridgeDispatchService {
               tokenHash,
               requestHash: submission.requestHash,
               claimedAt: null,
+              executionTokenHash: null,
+              completedAt: null,
               expiresAt: {
                 gt: now,
               },
             },
             data: {
               claimedAt: now,
+              executionTokenHash: executionToken.tokenHash,
+              executionExpiresAt: executionToken.expiresAt,
+              completedAt: null,
             },
           });
 
@@ -257,6 +273,8 @@ export class BridgeDispatchService {
           environment: submission.environment,
           installationNumber: submission.installationNumber,
           claimedAt: now,
+          executionToken: executionToken.token,
+          executionExpiresAt: executionToken.expiresAt,
         };
       },
       {
@@ -280,7 +298,7 @@ export class BridgeDispatchService {
       } catch (error: unknown) {
         if (
           error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.code === 'P2034' &&
+          (error.code === 'P2034' || error.code === 'P2002') &&
           attempt < MAX_TRANSACTION_ATTEMPTS
         ) {
           continue;

@@ -550,6 +550,10 @@ model FiscalBridgeDispatch {
   expiresAt DateTime
   claimedAt DateTime?
 
+  executionTokenHash String?   @unique @db.Char(64)
+  executionExpiresAt DateTime?
+  completedAt        DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -558,6 +562,7 @@ model FiscalBridgeDispatch {
 
   @@index([companyId, expiresAt])
   @@index([expiresAt, claimedAt])
+  @@index([executionExpiresAt, completedAt])
   @@map("fiscal_bridge_dispatches")
 }
 

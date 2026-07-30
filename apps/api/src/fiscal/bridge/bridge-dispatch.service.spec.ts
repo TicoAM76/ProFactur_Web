@@ -280,6 +280,9 @@ describe('BridgeDispatchService', () => {
         requestHash,
         expiresAt: result.expiresAt,
         claimedAt: null,
+        executionTokenHash: null,
+        executionExpiresAt: null,
+        completedAt: null,
       },
     });
   });
@@ -307,17 +310,20 @@ describe('BridgeDispatchService', () => {
 
     const result = await service.claimDispatch(claimable.token);
 
-    expect(result).toEqual({
-      companyId,
-      submissionId,
-      requestHash,
-      requestXml,
-      endpoint:
-        'https://prewww1.aeat.es/wlpl/TIKE-CONT/ws/SistemaFacturacion/VerifactuSOAP',
-      environment: FiscalEnvironment.TEST,
-      installationNumber: 'RNBRIDGE-DEV-1',
-      claimedAt: now,
-    });
+    expect(result.companyId).toBe(companyId);
+    expect(result.submissionId).toBe(submissionId);
+    expect(result.requestHash).toBe(requestHash);
+    expect(result.requestXml).toBe(requestXml);
+    expect(result.endpoint).toBe(
+      'https://prewww1.aeat.es/wlpl/TIKE-CONT/ws/SistemaFacturacion/VerifactuSOAP',
+    );
+    expect(result.environment).toBe(FiscalEnvironment.TEST);
+    expect(result.installationNumber).toBe('RNBRIDGE-DEV-1');
+    expect(result.claimedAt).toEqual(now);
+    expect(result.executionToken).toMatch(/^[A-Za-z0-9_-]{43}$/);
+    expect(result.executionExpiresAt.toISOString()).toBe(
+      '2026-07-29T20:10:00.000Z',
+    );
 
     expect(lastDispatchClaimArgs).toEqual({
       where: {
@@ -325,14 +331,21 @@ describe('BridgeDispatchService', () => {
         tokenHash: hashBridgeDispatchToken(claimable.token),
         requestHash,
         claimedAt: null,
+        executionTokenHash: null,
+        completedAt: null,
         expiresAt: {
           gt: now,
         },
       },
       data: {
         claimedAt: now,
+        executionTokenHash: hashBridgeDispatchToken(result.executionToken),
+        executionExpiresAt: result.executionExpiresAt,
+        completedAt: null,
       },
     });
+
+    expect(lastDispatchClaimArgs).not.toHaveProperty('data.executionToken');
 
     expect(lastSubmissionUpdateArgs).toEqual({
       where: {
